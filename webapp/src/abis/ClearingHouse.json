@@ -1,0 +1,310 @@
+[
+  {
+    "type": "constructor",
+    "inputs": [
+      { "name": "_priceFeed", "type": "address", "internalType": "address" },
+      { "name": "_treasury",  "type": "address", "internalType": "address" }
+    ],
+    "stateMutability": "nonpayable"
+  },
+  {
+    "type": "event",
+    "name": "CycleStarted",
+    "inputs": [
+      { "name": "cycleId",   "type": "uint256", "indexed": true  },
+      { "name": "pTarget",   "type": "int256",  "indexed": false },
+      { "name": "startTime", "type": "uint256", "indexed": false }
+    ],
+    "anonymous": false
+  },
+  {
+    "type": "event",
+    "name": "PositionOpened",
+    "inputs": [
+      { "name": "positionId",  "type": "uint256", "indexed": true  },
+      { "name": "owner",       "type": "address", "indexed": true  },
+      { "name": "isLong",      "type": "bool",    "indexed": false },
+      { "name": "collateral",  "type": "uint256", "indexed": false },
+      { "name": "netPosition", "type": "uint256", "indexed": false },
+      { "name": "premiumBps",  "type": "uint256", "indexed": false },
+      { "name": "entryPrice",  "type": "int256",  "indexed": false },
+      { "name": "baseFee",     "type": "uint256", "indexed": false }
+    ],
+    "anonymous": false
+  },
+  {
+    "type": "event",
+    "name": "CycleSettled",
+    "inputs": [
+      { "name": "cycleId",          "type": "uint256", "indexed": true  },
+      { "name": "pFinal",           "type": "int256",  "indexed": false },
+      { "name": "longPayoutRatio",  "type": "uint256", "indexed": false },
+      { "name": "shortPayoutRatio", "type": "uint256", "indexed": false }
+    ],
+    "anonymous": false
+  },
+  {
+    "type": "event",
+    "name": "PayoutClaimed",
+    "inputs": [
+      { "name": "positionId", "type": "uint256", "indexed": true  },
+      { "name": "owner",      "type": "address", "indexed": true  },
+      { "name": "payout",     "type": "uint256", "indexed": false }
+    ],
+    "anonymous": false
+  },
+  {
+    "type": "function",
+    "name": "openPosition",
+    "inputs": [{ "name": "isLong", "type": "bool", "internalType": "bool" }],
+    "outputs": [],
+    "stateMutability": "payable"
+  },
+  {
+    "type": "function",
+    "name": "settleCycle",
+    "inputs": [],
+    "outputs": [],
+    "stateMutability": "nonpayable"
+  },
+  {
+    "type": "function",
+    "name": "claimPayout",
+    "inputs": [{ "name": "positionId", "type": "uint256", "internalType": "uint256" }],
+    "outputs": [],
+    "stateMutability": "nonpayable"
+  },
+  {
+    "type": "function",
+    "name": "getCurrentCycle",
+    "inputs": [],
+    "outputs": [{
+      "name": "", "type": "tuple", "internalType": "struct ClearingHouse.Cycle",
+      "components": [
+        { "name": "id",               "type": "uint256" },
+        { "name": "startTime",        "type": "uint256" },
+        { "name": "endTime",          "type": "uint256" },
+        { "name": "pTarget",          "type": "int256"  },
+        { "name": "pFinal",           "type": "int256"  },
+        { "name": "netLong",          "type": "uint256" },
+        { "name": "netShort",         "type": "uint256" },
+        { "name": "longPayoutRatio",  "type": "uint256" },
+        { "name": "shortPayoutRatio", "type": "uint256" },
+        { "name": "settled",          "type": "bool"    }
+      ]
+    }],
+    "stateMutability": "view"
+  },
+  {
+    "type": "function",
+    "name": "getOraclePrice",
+    "inputs": [],
+    "outputs": [{ "name": "", "type": "int256" }],
+    "stateMutability": "view"
+  },
+  {
+    "type": "function",
+    "name": "getUserPositionIds",
+    "inputs": [{ "name": "user", "type": "address", "internalType": "address" }],
+    "outputs": [{ "name": "", "type": "uint256[]" }],
+    "stateMutability": "view"
+  },
+  {
+    "type": "function",
+    "name": "getPosition",
+    "inputs": [{ "name": "id", "type": "uint256", "internalType": "uint256" }],
+    "outputs": [{
+      "name": "", "type": "tuple", "internalType": "struct ClearingHouse.Position",
+      "components": [
+        { "name": "id",          "type": "uint256" },
+        { "name": "owner",       "type": "address" },
+        { "name": "cycleId",     "type": "uint256" },
+        { "name": "isLong",      "type": "bool"    },
+        { "name": "collateral",  "type": "uint256" },
+        { "name": "netPosition", "type": "uint256" },
+        { "name": "entryPrice",  "type": "int256"  },
+        { "name": "premiumBps",  "type": "uint256" },
+        { "name": "openedAt",    "type": "uint256" },
+        { "name": "claimed",     "type": "bool"    }
+      ]
+    }],
+    "stateMutability": "view"
+  },
+  {
+    "type": "function",
+    "name": "getPositionsBatch",
+    "inputs": [{ "name": "ids", "type": "uint256[]", "internalType": "uint256[]" }],
+    "outputs": [{
+      "name": "result", "type": "tuple[]", "internalType": "struct ClearingHouse.Position[]",
+      "components": [
+        { "name": "id",          "type": "uint256" },
+        { "name": "owner",       "type": "address" },
+        { "name": "cycleId",     "type": "uint256" },
+        { "name": "isLong",      "type": "bool"    },
+        { "name": "collateral",  "type": "uint256" },
+        { "name": "netPosition", "type": "uint256" },
+        { "name": "entryPrice",  "type": "int256"  },
+        { "name": "premiumBps",  "type": "uint256" },
+        { "name": "openedAt",    "type": "uint256" },
+        { "name": "claimed",     "type": "bool"    }
+      ]
+    }],
+    "stateMutability": "view"
+  },
+  {
+    "type": "function",
+    "name": "computePremium",
+    "inputs": [
+      { "name": "isLong",     "type": "bool",    "internalType": "bool"    },
+      { "name": "collateral", "type": "uint256", "internalType": "uint256" }
+    ],
+    "outputs": [{
+      "name": "pb", "type": "tuple", "internalType": "struct ClearingHouse.PremiumBreakdown",
+      "components": [
+        { "name": "skewBps",        "type": "uint256" },
+        { "name": "timeBps",        "type": "uint256" },
+        { "name": "distBps",        "type": "uint256" },
+        { "name": "totalBps",       "type": "uint256" },
+        { "name": "premiumCostWei", "type": "uint256" },
+        { "name": "netPositionWei", "type": "uint256" },
+        { "name": "baseFeeWei",     "type": "uint256" },
+        { "name": "isCapped",       "type": "bool"    },
+        { "name": "oraclePrice",    "type": "int256"  }
+      ]
+    }],
+    "stateMutability": "view"
+  },
+  {
+    "type": "function",
+    "name": "getCyclePhase",
+    "inputs": [],
+    "outputs": [{ "name": "", "type": "uint8" }],
+    "stateMutability": "view"
+  },
+  {
+    "type": "function",
+    "name": "getCycleElapsed",
+    "inputs": [],
+    "outputs": [{ "name": "", "type": "uint256" }],
+    "stateMutability": "view"
+  },
+  {
+    "type": "function",
+    "name": "getTimePremiumBps",
+    "inputs": [],
+    "outputs": [{ "name": "", "type": "uint256" }],
+    "stateMutability": "view"
+  },
+  {
+    "type": "function",
+    "name": "getSkewBps",
+    "inputs": [{ "name": "isLong", "type": "bool", "internalType": "bool" }],
+    "outputs": [{ "name": "skewBps", "type": "uint256" }],
+    "stateMutability": "view"
+  },
+  {
+    "type": "function",
+    "name": "currentCycleId",
+    "inputs": [],
+    "outputs": [{ "name": "", "type": "uint256" }],
+    "stateMutability": "view"
+  },
+  {
+    "type": "function",
+    "name": "positionCount",
+    "inputs": [],
+    "outputs": [{ "name": "", "type": "uint256" }],
+    "stateMutability": "view"
+  },
+  {
+    "type": "function",
+    "name": "CYCLE_DURATION",
+    "inputs": [],
+    "outputs": [{ "name": "", "type": "uint256" }],
+    "stateMutability": "view"
+  },
+  {
+    "type": "function",
+    "name": "STABLE_END",
+    "inputs": [],
+    "outputs": [{ "name": "", "type": "uint256" }],
+    "stateMutability": "view"
+  },
+  {
+    "type": "function",
+    "name": "WARNING_END",
+    "inputs": [],
+    "outputs": [{ "name": "", "type": "uint256" }],
+    "stateMutability": "view"
+  },
+  {
+    "type": "function",
+    "name": "MIN_COLLATERAL",
+    "inputs": [],
+    "outputs": [{ "name": "", "type": "uint256" }],
+    "stateMutability": "view"
+  },
+  {
+    "type": "function",
+    "name": "priceFeed",
+    "inputs": [],
+    "outputs": [{ "name": "", "type": "address" }],
+    "stateMutability": "view"
+  },
+  {
+    "type": "function",
+    "name": "treasury",
+    "inputs": [],
+    "outputs": [{ "name": "", "type": "address" }],
+    "stateMutability": "view"
+  },
+  {
+    "type": "receive",
+    "stateMutability": "payable"
+  },
+  { "type": "error", "name": "CycleNotEndedYet",      "inputs": [] },
+  { "type": "error", "name": "CycleAlreadySettled",   "inputs": [] },
+  { "type": "error", "name": "CycleNotSettled",       "inputs": [] },
+  { "type": "error", "name": "PositionAlreadyClaimed","inputs": [] },
+  { "type": "error", "name": "NotPositionOwner",      "inputs": [] },
+  { "type": "error", "name": "BelowMinCollateral",    "inputs": [] },
+  { "type": "error", "name": "StalePriceFeed",        "inputs": [] },
+  { "type": "error", "name": "InvalidOraclePrice",    "inputs": [] },
+  { "type": "error", "name": "TransferFailed",        "inputs": [] },
+  { "type": "error", "name": "NotTreasury",            "inputs": [] },
+  {
+    "type": "function",
+    "name": "getCycleById",
+    "inputs": [{ "name": "cycleId", "type": "uint256", "internalType": "uint256" }],
+    "outputs": [{
+      "name": "", "type": "tuple", "internalType": "struct ClearingHouse.Cycle",
+      "components": [
+        { "name": "id",               "type": "uint256" },
+        { "name": "startTime",        "type": "uint256" },
+        { "name": "endTime",          "type": "uint256" },
+        { "name": "pTarget",          "type": "int256"  },
+        { "name": "pFinal",           "type": "int256"  },
+        { "name": "netLong",          "type": "uint256" },
+        { "name": "netShort",         "type": "uint256" },
+        { "name": "longPayoutRatio",  "type": "uint256" },
+        { "name": "shortPayoutRatio", "type": "uint256" },
+        { "name": "settled",          "type": "bool"    }
+      ]
+    }],
+    "stateMutability": "view"
+  },
+  {
+    "type": "function",
+    "name": "devFastForward",
+    "inputs": [],
+    "outputs": [],
+    "stateMutability": "nonpayable"
+  },
+  {
+    "type": "function",
+    "name": "devForceSettle",
+    "inputs": [],
+    "outputs": [],
+    "stateMutability": "nonpayable"
+  }
+]

@@ -19,9 +19,8 @@ export default function Dashboard({ t }) {
   const { positions, loading: posLoading, error: posError, claiming, claimReceipts, claim, refetch } = usePositions();
   const treasury = useTreasury();
 
-  // ── Sandbox overrides ─────────────────────────────────────────────────────
+  // ── Sandbox overrides (timer only) ───────────────────────────────────────
   const [sandboxElapsed, setSandboxElapsed] = useState(null); // null = live
-  const [sandboxPrice,   setSandboxPrice]   = useState(null); // null = live
 
   // Derive effective values — sandbox wins when set
   const effectiveElapsed = sandboxElapsed ?? elapsed;
@@ -35,7 +34,6 @@ export default function Dashboard({ t }) {
     if (sandboxElapsed >= STABLE_END)  return 1;
     return 0;
   }, [sandboxElapsed, phase]);
-  const effectivePrice = sandboxPrice ?? price;
 
   const isTimerMock = sandboxElapsed !== null;
 
@@ -56,7 +54,7 @@ export default function Dashboard({ t }) {
           t={t}
         />
         <PriceChart
-          price={effectivePrice}
+          price={price}
           change={change}
           priceHistory={priceHistory}
           cycle={cycle}
@@ -84,11 +82,7 @@ export default function Dashboard({ t }) {
       {lastUpdated && (
         <div className="flex items-center justify-end gap-2 text-[10px] text-slate-600">
           <span className="w-1.5 h-1.5 rounded-full bg-teal animate-pulse" />
-          <span>
-            {sandboxPrice != null
-              ? `Mock price active · live feed paused`
-              : `Live via ${source} · ${new Date(lastUpdated).toLocaleTimeString()}`}
-          </span>
+          <span>Live via {source} · {new Date(lastUpdated).toLocaleTimeString()}</span>
         </div>
       )}
 
@@ -96,7 +90,7 @@ export default function Dashboard({ t }) {
       <div className="grid grid-cols-1 lg:grid-cols-[360px_1fr] gap-4 items-start">
         <TradePanel
           cycle={cycle}
-          price={effectivePrice}
+          price={price}
           elapsed={effectiveElapsed}
           t={t}
           onTraded={refetch}
@@ -113,9 +107,6 @@ export default function Dashboard({ t }) {
               onFastForwardCritical={() => setSandboxElapsed(CYCLE_DURATION - 60)}
               onFastForwardWarning={() => setSandboxElapsed(STABLE_END)}
               onResetTimer={() => setSandboxElapsed(null)}
-              sandboxPrice={sandboxPrice}
-              onPriceOverride={v => setSandboxPrice(v)}
-              onClearPrice={() => setSandboxPrice(null)}
               settle={settle}
               devFastForward={devFastForward}
               devForceSettle={devForceSettle}
@@ -126,7 +117,7 @@ export default function Dashboard({ t }) {
             positions={positions}
             cycle={cycle}
             prevCycle={prevCycle}
-            price={effectivePrice}
+            price={price}
             loading={posLoading}
             error={posError}
             claiming={claiming}

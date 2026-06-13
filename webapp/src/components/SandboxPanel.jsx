@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { CYCLE_DURATION, STABLE_END, PHASE_META } from '../lib/constants';
+import { PHASE_META } from '../lib/constants';
 
 function fmtTime(s) {
   const secs = Math.max(0, Math.round(s));
@@ -17,23 +17,18 @@ export default function SandboxPanel({
   onFastForwardCritical,
   onFastForwardWarning,
   onResetTimer,
-  sandboxPrice,
-  onPriceOverride,
-  onClearPrice,
   settle,
   devFastForward,
   devForceSettle,
   treasury,
 }) {
-  const [priceInput,    setPriceInput]    = useState('');
-  const [settling,      setSettling]      = useState(false);
-  const [settleError,   setSettleError]   = useState(null);
-  const [ffwding,       setFfwding]       = useState(false);
-  const [ffwdError,     setFfwdError]     = useState(null);
+  const [settling,    setSettling]    = useState(false);
+  const [settleError, setSettleError] = useState(null);
+  const [ffwding,     setFfwding]     = useState(false);
+  const [ffwdError,   setFfwdError]   = useState(null);
 
   const phaseLabel = PHASE_META[effectivePhase]?.label ?? 'Unknown';
   const phaseColor = PHASE_META[effectivePhase]?.color ?? '#94a3b8';
-  const isPriceMock = sandboxPrice != null;
 
   const handleSettle = async () => {
     setSettling(true);
@@ -62,13 +57,6 @@ export default function SandboxPanel({
     }
   };
 
-  const handleSetPrice = () => {
-    const v = parseFloat(priceInput);
-    if (!isNaN(v) && v > 0) { onPriceOverride(v); setPriceInput(''); }
-  };
-
-  const handlePriceKey = (e) => { if (e.key === 'Enter') handleSetPrice(); };
-
   return (
     <div className="rounded-xl border border-dashed border-amber/40 bg-amber/[0.025] px-4 py-3">
 
@@ -84,12 +72,12 @@ export default function SandboxPanel({
           DEV
         </span>
         <span className="font-mono text-[9px] text-slate-600 ml-auto">
-          timer &amp; price overrides are UI-only · Force Settle writes on-chain
+          timer overrides are UI-only · Force Settle writes on-chain
         </span>
       </div>
 
-      {/* ── Three panels ───────────────────────────────────────────────────── */}
-      <div className="grid grid-cols-1 md:grid-cols-3 gap-3">
+      {/* ── Two panels ─────────────────────────────────────────────────────── */}
+      <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
 
         {/* ── 1. Timer Control ─────────────────────────────────────────────── */}
         <div className="rounded-lg border border-dashed border-amber/20 bg-[#070b12]/50 px-3 py-2.5 flex flex-col gap-2">
@@ -148,74 +136,7 @@ export default function SandboxPanel({
           </div>
         </div>
 
-        {/* ── 2. Oracle Price Mock ──────────────────────────────────────────── */}
-        <div className="rounded-lg border border-dashed border-amber/20 bg-[#070b12]/50 px-3 py-2.5 flex flex-col gap-2">
-          <p className="font-mono text-[9px] font-semibold uppercase tracking-widest text-amber/50">
-            // ORACLE_MOCK
-          </p>
-
-          <div className="flex items-center gap-2 flex-wrap">
-            <span className="font-mono text-[10px] text-slate-500">P_oracle →</span>
-            <span className="font-mono text-[10px] font-bold text-slate-200">
-              {isPriceMock
-                ? `$${sandboxPrice.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`
-                : 'live feed'}
-            </span>
-            {isPriceMock && (
-              <span className="font-mono text-[8px] px-1 py-0.5 rounded" style={{ color: '#f59e0b', background: 'rgba(245,158,11,0.15)' }}>
-                MOCK
-              </span>
-            )}
-          </div>
-
-          {cycle?.pTarget != null && (
-            <div className="flex items-center gap-2 flex-wrap">
-              <span className="font-mono text-[10px] text-slate-500">P_target →</span>
-              <span className="font-mono text-[10px] text-amber">
-                ${cycle.pTarget.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
-              </span>
-              {isPriceMock && cycle?.pTarget && (
-                <span
-                  className="font-mono text-[8px] px-1 py-0.5 rounded font-bold"
-                  style={sandboxPrice > cycle.pTarget
-                    ? { color: '#00d4aa', background: 'rgba(0,212,170,0.15)' }
-                    : { color: '#ef4444', background: 'rgba(239,68,68,0.15)' }}
-                >
-                  {sandboxPrice > cycle.pTarget ? 'LONG ITM' : 'SHORT ITM'}
-                </span>
-              )}
-            </div>
-          )}
-
-          <div className="flex gap-1.5 mt-1">
-            <input
-              type="number"
-              step="0.01"
-              value={priceInput}
-              onChange={e => setPriceInput(e.target.value)}
-              onKeyDown={handlePriceKey}
-              placeholder={`e.g. ${cycle?.pTarget ? (cycle.pTarget * 1.02).toFixed(0) : '2200'}`}
-              className="flex-1 min-w-0 bg-[#0d1117] border border-[#1c2636] focus:border-amber/40 rounded px-2 py-1 font-mono text-[10px] text-slate-300 placeholder-slate-700 outline-none transition-colors"
-            />
-            <button
-              onClick={handleSetPrice}
-              className="font-mono text-[10px] px-2.5 py-1 rounded border border-amber/30 bg-amber/10 text-amber/80 hover:bg-amber/20 transition-colors whitespace-nowrap"
-            >
-              Set
-            </button>
-          </div>
-
-          {isPriceMock && (
-            <button
-              onClick={onClearPrice}
-              className="font-mono text-[10px] px-2 py-1.5 rounded border border-slate-600/40 bg-slate-800/40 text-slate-400 hover:bg-slate-700/40 transition-colors text-left"
-            >
-              ↺ Restore Live Feed
-            </button>
-          )}
-        </div>
-
-        {/* ── 3. Force Settlement ──────────────────────────────────────────── */}
+        {/* ── 2. Force Settlement ──────────────────────────────────────────── */}
         <div className="rounded-lg border border-dashed border-red-500/25 bg-[#070b12]/50 px-3 py-2.5 flex flex-col gap-2">
           <p className="font-mono text-[9px] font-semibold uppercase tracking-widest text-red-400/50">
             // FORCE_SETTLE

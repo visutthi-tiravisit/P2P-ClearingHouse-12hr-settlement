@@ -24,14 +24,17 @@ export function WalletProvider({ children }) {
     const _signer   = await _provider.getSigner();
     const _account  = await _signer.getAddress();
     const _network  = await _provider.getNetwork();
-    const _balance  = await _provider.getBalance(_account);
     const _contract = new ethers.Contract(CONTRACT_ADDRESS, ClearingHouseABI, _signer);
+
+    // Balance fetch is best-effort — RPC may return 401 transiently; the 15s interval will retry
+    let _balance = null;
+    try { _balance = await _provider.getBalance(_account); } catch { /* retry via interval */ }
 
     setProvider(_provider);
     setSigner(_signer);
     setAccount(_account);
     setChainId(Number(_network.chainId));
-    setBalance(ethers.formatEther(_balance));
+    setBalance(_balance !== null ? ethers.formatEther(_balance) : null);
     setContract(_contract);
     return { account: _account };
   }, []);

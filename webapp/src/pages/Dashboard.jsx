@@ -4,7 +4,6 @@ import PriceChart      from '../components/PriceChart';
 import PoolMeter       from '../components/PoolMeter';
 import TradePanel      from '../components/TradePanel';
 import HoldingsTable   from '../components/HoldingsTable';
-import MasterDataTable from '../components/MasterDataTable';
 import SandboxPanel    from '../components/SandboxPanel';
 import { useCycle }     from '../hooks/useCycle';
 import { usePriceFeed } from '../hooks/usePriceFeed';
@@ -134,14 +133,6 @@ export default function Dashboard({ t }) {
           />
         </div>
       </div>
-
-      {/* Master Data Declaration Table */}
-      <MasterDataTable
-        price={effectivePrice}
-        cycle={cycle}
-        elapsed={effectiveElapsed}
-        t={t}
-      />
 
       <div className="h-4" />
     </div>

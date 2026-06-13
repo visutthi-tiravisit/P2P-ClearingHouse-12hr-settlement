@@ -26,20 +26,6 @@ export default function ConnectWallet({ t }) {
           12-HOUR LINEAR SETTLEMENT · SEPOLIA
         </p>
 
-        <div className="space-y-2 text-sm text-slate-400 mb-8 text-left bg-white/[0.03] border border-white/5 rounded-xl p-4">
-          {[
-            ['Deposit ETH', 'as collateral (Long or Short)'],
-            ['Dynamic premium', 'R_skew + R_time + R_dist deducted'],
-            ['Chainlink oracle', 'settles price at 12h mark'],
-            ['ITM payout', 'N × (1 + ΔP) from opposing pool'],
-          ].map(([k, v]) => (
-            <div key={k} className="flex gap-2">
-              <span className="text-teal shrink-0">›</span>
-              <span><span className="text-slate-200 font-medium">{k}</span> — {v}</span>
-            </div>
-          ))}
-        </div>
-
         {error && (
           <div className="mb-4 px-4 py-3 rounded-xl bg-red-500/10 border border-red-500/20 text-red-400 text-sm text-left">
             {error}

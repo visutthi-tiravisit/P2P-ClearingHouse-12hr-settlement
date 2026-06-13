@@ -9,9 +9,11 @@ import { useCycle }     from '../hooks/useCycle';
 import { usePriceFeed } from '../hooks/usePriceFeed';
 import { usePositions } from '../hooks/usePositions';
 import { useTreasury }  from '../hooks/useTreasury';
+import { useWallet }    from '../context/WalletContext';
 import { CYCLE_DURATION, STABLE_END, WARNING_END } from '../lib/constants';
 
 export default function Dashboard({ t }) {
+  const { isTreasury } = useWallet();
   const { cycle, prevCycle, phase, elapsed, remaining, progress, settle, devFastForward, devForceSettle } = useCycle();
   const { price, priceHistory, change, source, lastUpdated } = usePriceFeed();
   const { positions, loading: posLoading, error: posError, claiming, claimReceipts, claim, refetch } = usePositions();
@@ -65,8 +67,8 @@ export default function Dashboard({ t }) {
         <PoolMeter cycle={cycle} t={t} />
       </div>
 
-      {/* Settle notice */}
-      {canSettle && (
+      {/* Settle notice — treasury only */}
+      {isTreasury && canSettle && (
         <div className="card px-4 py-3 flex items-center justify-between border-amber/30 bg-amber/5">
           <div>
             <p className="text-sm font-semibold text-amber">Cycle #{cycle.id} ready to settle</p>
@@ -102,22 +104,24 @@ export default function Dashboard({ t }) {
 
         {/* Sandbox + Holdings stacked in the right column */}
         <div className="flex flex-col gap-4">
-          <SandboxPanel
-            cycle={cycle}
-            effectivePhase={effectivePhase}
-            effectiveRemaining={effectiveRemaining}
-            isTimerMock={isTimerMock}
-            onFastForwardCritical={() => setSandboxElapsed(CYCLE_DURATION - 60)}
-            onFastForwardWarning={() => setSandboxElapsed(STABLE_END)}
-            onResetTimer={() => setSandboxElapsed(null)}
-            sandboxPrice={sandboxPrice}
-            onPriceOverride={v => setSandboxPrice(v)}
-            onClearPrice={() => setSandboxPrice(null)}
-            settle={settle}
-            devFastForward={devFastForward}
-            devForceSettle={devForceSettle}
-            treasury={treasury}
-          />
+          {isTreasury && (
+            <SandboxPanel
+              cycle={cycle}
+              effectivePhase={effectivePhase}
+              effectiveRemaining={effectiveRemaining}
+              isTimerMock={isTimerMock}
+              onFastForwardCritical={() => setSandboxElapsed(CYCLE_DURATION - 60)}
+              onFastForwardWarning={() => setSandboxElapsed(STABLE_END)}
+              onResetTimer={() => setSandboxElapsed(null)}
+              sandboxPrice={sandboxPrice}
+              onPriceOverride={v => setSandboxPrice(v)}
+              onClearPrice={() => setSandboxPrice(null)}
+              settle={settle}
+              devFastForward={devFastForward}
+              devForceSettle={devForceSettle}
+              treasury={treasury}
+            />
+          )}
           <HoldingsTable
             positions={positions}
             cycle={cycle}

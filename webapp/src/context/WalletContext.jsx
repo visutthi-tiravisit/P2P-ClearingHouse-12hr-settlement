@@ -1,6 +1,6 @@
 import { createContext, useContext, useState, useEffect, useCallback } from 'react';
 import { ethers } from 'ethers';
-import { CONTRACT_ADDRESS, SEPOLIA_CHAIN_ID, SEPOLIA_HEX_CHAIN_ID } from '../lib/constants';
+import { CONTRACT_ADDRESS, SEPOLIA_CHAIN_ID, SEPOLIA_HEX_CHAIN_ID, TREASURY_ADDRESS } from '../lib/constants';
 import ClearingHouseABI from '../abis/ClearingHouse.json';
 
 const WalletContext = createContext(null);
@@ -15,8 +15,9 @@ export function WalletProvider({ children }) {
   const [connecting, setConnecting] = useState(false);
   const [error,    setError]      = useState(null);
 
-  const isConnected     = !!account;
+  const isConnected      = !!account;
   const isSepoliaNetwork = chainId === SEPOLIA_CHAIN_ID;
+  const isTreasury       = !!account && account.toLowerCase() === TREASURY_ADDRESS.toLowerCase();
 
   const _buildInstances = useCallback(async (ethereum) => {
     const _provider = new ethers.BrowserProvider(ethereum);
@@ -128,7 +129,7 @@ export function WalletProvider({ children }) {
   return (
     <WalletContext.Provider value={{
       provider, signer, account, balance, chainId, contract,
-      isConnected, isSepoliaNetwork, connecting, error,
+      isConnected, isSepoliaNetwork, isTreasury, connecting, error,
       connect, disconnect,
     }}>
       {children}

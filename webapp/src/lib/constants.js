@@ -1,3 +1,6 @@
+// ─── Roles ────────────────────────────────────────────────────────────────────
+export const TREASURY_ADDRESS = '0x00B75a4087b59D763918394F0eF34BE1Ff03B759';
+
 // ─── Network ──────────────────────────────────────────────────────────────────
 export const SEPOLIA_CHAIN_ID = 11155111;
 export const SEPOLIA_HEX_CHAIN_ID = '0xaa36a7';

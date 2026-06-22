@@ -5,18 +5,26 @@ import PoolMeter       from '../components/PoolMeter';
 import TradePanel      from '../components/TradePanel';
 import HoldingsTable   from '../components/HoldingsTable';
 import SandboxPanel    from '../components/SandboxPanel';
-import { useCycle }     from '../hooks/useCycle';
-import { usePriceFeed } from '../hooks/usePriceFeed';
-import { usePositions } from '../hooks/usePositions';
+import { useCycle }       from '../hooks/useCycle';
+import { useCyclesById }  from '../hooks/useCyclesById';
+import { usePriceFeed }   from '../hooks/usePriceFeed';
+import { usePositions }   from '../hooks/usePositions';
 import { useTreasury }  from '../hooks/useTreasury';
 import { useWallet }    from '../context/WalletContext';
 import { CYCLE_DURATION, STABLE_END, WARNING_END } from '../lib/constants';
 
 export default function Dashboard({ t }) {
   const { isTreasury } = useWallet();
-  const { cycle, prevCycle, phase, elapsed, remaining, progress, settle, devFastForward, devForceSettle } = useCycle();
+  const { cycle, phase, elapsed, remaining, progress, settle, devFastForward, devForceSettle } = useCycle();
   const { price, priceHistory, change, source, lastUpdated } = usePriceFeed();
   const { positions, loading: posLoading, error: posError, claiming, claimReceipts, claim, refetch } = usePositions();
+
+  // Load the exact cycle data for every finalized position by its own cycleId.
+  const finalisedCycleIds = useMemo(
+    () => [...new Set(positions.filter(p => p.cycleId !== cycle?.id).map(p => p.cycleId))],
+    [positions, cycle?.id],
+  );
+  const cyclesById = useCyclesById(finalisedCycleIds);
   const treasury = useTreasury();
 
   // ── Sandbox overrides (timer only) ───────────────────────────────────────
@@ -116,7 +124,7 @@ export default function Dashboard({ t }) {
           <HoldingsTable
             positions={positions}
             cycle={cycle}
-            prevCycle={prevCycle}
+            cyclesById={cyclesById}
             price={price}
             loading={posLoading}
             error={posError}

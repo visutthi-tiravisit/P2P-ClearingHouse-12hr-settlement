@@ -21,9 +21,8 @@ function normalizeCycle(raw) {
 
 export function useCycle() {
   const { contract } = useWallet();
-  const [cycle,     setCycle]     = useState(null);
-  const [prevCycle, setPrevCycle] = useState(null);
-  const [phase,     setPhase]     = useState(0);
+  const [cycle,   setCycle] = useState(null);
+  const [phase,   setPhase] = useState(0);
   const [elapsed,   setElapsed]   = useState(0);
   const [loading,   setLoading]   = useState(true);
   const [error,     setError]     = useState(null);
@@ -40,12 +39,6 @@ export function useCycle() {
       setCycle(current);
       setPhase(Number(rawPhase));
       setElapsed(Number(rawElapsed));
-
-      // Fetch the previous (settled) cycle so HoldingsTable can freeze payout values
-      if (current && current.id > 1) {
-        const rawPrev = await contract.getCycleById(current.id - 1);
-        setPrevCycle(normalizeCycle(rawPrev));
-      }
 
       setError(null);
     } catch (err) {
@@ -99,5 +92,5 @@ export function useCycle() {
     fetchCycle();
   }, [contract, fetchCycle]);
 
-  return { cycle, prevCycle, phase, elapsed, remaining, progress, loading, error, refetch: fetchCycle, settle, devFastForward, devForceSettle };
+  return { cycle, phase, elapsed, remaining, progress, loading, error, refetch: fetchCycle, settle, devFastForward, devForceSettle };
 }

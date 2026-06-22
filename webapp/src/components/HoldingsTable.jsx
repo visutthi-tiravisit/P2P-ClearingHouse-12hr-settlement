@@ -8,7 +8,7 @@ function shortHash(hash) {
 }
 
 export default function HoldingsTable({
-  positions, cycle, prevCycle, price, loading, error,
+  positions, cycle, cyclesById = {}, price, loading, error,
   claiming, claimReceipts, onClaim, onRefetch, t,
 }) {
   const currentCycleId = cycle?.id;
@@ -83,9 +83,9 @@ export default function HoldingsTable({
         const isCurrentCycle  = pos.cycleId === currentCycleId;
         const isFinalizedCycle = !isCurrentCycle;
 
-        // For finalized-cycle positions, use prevCycle's frozen settlement data.
+        // For finalized-cycle positions, use that position's own cycle data.
         // For active-cycle positions, use the live price and current cycle.
-        const refCycle = isFinalizedCycle ? prevCycle : cycle;
+        const refCycle = isFinalizedCycle ? (cyclesById[pos.cycleId] ?? null) : cycle;
 
         const targetPrice  = refCycle?.pTarget ?? 0;
         const currentPrice = isFinalizedCycle

@@ -94,15 +94,17 @@ export default function Dashboard({ t }) {
         </div>
       )}
 
-      {/* Trade Panel */}
-      <div className="grid grid-cols-1 lg:grid-cols-[360px_1fr] gap-4 items-start">
-        <TradePanel
-          cycle={cycle}
-          price={price}
-          elapsed={effectiveElapsed}
-          t={t}
-          onTraded={refetch}
-        />
+      {/* Trade Panel — hidden for treasury wallet */}
+      <div className={`grid gap-4 items-start ${isTreasury ? 'grid-cols-1' : 'grid-cols-1 lg:grid-cols-[360px_1fr]'}`}>
+        {!isTreasury && (
+          <TradePanel
+            cycle={cycle}
+            price={price}
+            elapsed={effectiveElapsed}
+            t={t}
+            onTraded={refetch}
+          />
+        )}
 
         {/* Sandbox + Holdings stacked in the right column */}
         <div className="flex flex-col gap-4">

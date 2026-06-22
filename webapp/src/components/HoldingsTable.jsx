@@ -115,8 +115,9 @@ export default function HoldingsTable({
         const isSettled = pos.claimed;
 
         // Net received = payout - gas; if no receipt, show best estimate without gas
+        // Prefer exact on-chain payout from event; fall back to old receipts that only have settledAmount.
         const finalPayout = receipt
-          ? receipt.settledAmount                  // = estimatedPayout - gasCostEth
+          ? (receipt.payout ?? receipt.settledAmount)
           : liveEst;
 
         const canClaim   = isFinalizedCycle && !pos.claimed;
@@ -210,7 +211,9 @@ export default function HoldingsTable({
                   </p>
                   {receipt ? (
                     <p className="text-[10px] text-slate-500 font-mono">
-                      −{receipt.gasCostEth.toFixed(6)} gas · Net Received
+                      {receipt.payout != null
+                        ? `−${receipt.gasCostEth.toFixed(6)} gas · Received`
+                        : `−${receipt.gasCostEth.toFixed(6)} gas · Net est`}
                     </p>
                   ) : (
                     <p className="text-[10px] text-slate-600 font-mono">Final Payout</p>

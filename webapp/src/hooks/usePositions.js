@@ -91,19 +91,33 @@ export function usePositions() {
       const receipt = await tx.wait();
 
       // Gas cost in ETH: gasUsed × gasPrice (effectiveGasPrice for EIP-1559 chains)
-      const gasPrice  = receipt.gasPrice ?? receipt.effectiveGasPrice ?? 0n;
+      const gasPrice   = receipt.gasPrice ?? receipt.effectiveGasPrice ?? 0n;
       const gasCostWei = receipt.gasUsed * gasPrice;
       const gasCostEth = parseFloat(ethers.formatEther(gasCostWei));
 
-      const settledAmount = Math.max(0, (estimatedPayout ?? 0) - gasCostEth);
+      // Parse exact payout from the PayoutClaimed event so the UI shows what the
+      // contract actually transferred, not a UI estimate minus gas.
+      let payout = estimatedPayout ?? 0;
+      try {
+        for (const log of receipt.logs) {
+          try {
+            const parsed = contract.interface.parseLog({ topics: log.topics, data: log.data });
+            if (parsed?.name === 'PayoutClaimed' && Number(parsed.args.positionId) === positionId) {
+              payout = parseFloat(ethers.formatEther(parsed.args.payout));
+              break;
+            }
+          } catch {}
+        }
+      } catch {}
 
       setClaimReceipts(prev => ({
         ...prev,
         [positionId]: {
-          txHash:        receipt.hash,
-          blockNumber:   receipt.blockNumber,
+          txHash:      receipt.hash,
+          blockNumber: receipt.blockNumber,
           gasCostEth,
-          settledAmount,
+          payout,                                    // exact on-chain transfer amount
+          settledAmount: Math.max(0, payout - gasCostEth), // kept for old-receipt compat
         },
       }));
 

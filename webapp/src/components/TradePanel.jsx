@@ -339,7 +339,7 @@ export default function TradePanel({ cycle, price, elapsed, t, onTraded }) {
         </div>
       </div>
 
-      {/* ── ORDER SUMMARY ── two-column layout */}
+      {/* ── ORDER SUMMARY ── possible profit only */}
       <div className="border-t border-[#1c2636]">
         <div className="px-4 py-2 bg-white/[0.02]">
           <p className="text-[10px] font-bold uppercase tracking-widest text-slate-500">
@@ -347,166 +347,13 @@ export default function TradePanel({ cycle, price, elapsed, t, onTraded }) {
           </p>
         </div>
 
-        <div className="grid grid-cols-2 divide-x divide-[#1c2636]">
-          {/* Sub-col A: COST & FEES */}
-          <div>
-            <div className="px-3 py-1.5 bg-[#0a0f1a] border-b border-[#1c2636]">
-              <span className="text-[9px] font-bold uppercase tracking-wider text-slate-500">
-                {t?.costFees ?? 'Cost & Fees'}
-              </span>
-            </div>
-
-            {/* Collateral */}
-            <div className="flex justify-between items-center px-3 py-2 border-b border-[#1c2636]">
-              <span className="text-[9px] text-slate-500">Collateral</span>
-              <span className="font-mono text-xs font-semibold text-slate-300">
-                {collateralEth.toFixed(4)} ETH
-              </span>
-            </div>
-
-            {/* Time Premium */}
-            <div className="flex justify-between items-center px-3 py-2 border-b border-[#1c2636]">
-              <div>
-                <p className="text-[9px] text-slate-500">Time Premium</p>
-                <p className="text-[9px] text-slate-600">
-                  {pm.timePremiumPct === 0 ? 'Stable' : pm.timePremiumPct <= 2 ? 'Warning' : 'Critical'}
-                </p>
-              </div>
-              <div className="text-right">
-                <p className="font-mono text-xs font-semibold"
-                   style={{ color: pm.timePremiumPct === 0 ? '#22c55e' : pm.timePremiumPct <= 2 ? '#f59e0b' : '#ef4444' }}>
-                  +{pm.timePremiumPct.toFixed(2)}%
-                </p>
-                <p className="font-mono text-[9px] text-slate-500">
-                  {(collateralEth * pm.timePremiumPct / 100).toFixed(4)} ETH
-                </p>
-              </div>
-            </div>
-
-            {/* Skew */}
-            <div className="flex justify-between items-center px-3 py-2 border-b border-[#1c2636]">
-              <div>
-                <p className="text-[9px] text-slate-500">Skew</p>
-                <p className="text-[9px] text-slate-600">×{pm.skewFactor.toFixed(1)}</p>
-              </div>
-              <div className="text-right">
-                <p className="font-mono text-xs font-semibold"
-                   style={{ color: pm.skewFactor > 1 ? '#f59e0b' : pm.skewFactor < 1 ? '#22c55e' : '#94a3b8' }}>
-                  {pm.skewFactor < 1 ? '' : '+'}{pm.baseSkewPct.toFixed(3)}%
-                </p>
-                <p className="font-mono text-[9px] text-slate-500">
-                  {(collateralEth * pm.baseSkewPct / 100).toFixed(4)} ETH
-                </p>
-              </div>
-            </div>
-
-            {/* Price Surcharge */}
-            <div className="flex justify-between items-center px-3 py-2 border-b border-[#1c2636]"
-                 style={{ background: pm.priceDistancePct > 5 && !pm.isCapped ? 'rgba(239,68,68,0.04)' : 'none' }}>
-              <div>
-                <p className="text-[9px] text-slate-500">Price Surcharge</p>
-                {pm.priceDistancePct > 5 && !pm.isCapped &&
-                  <p className="text-[9px] font-bold text-red-400">HIGH ⚠</p>}
-              </div>
-              <div className="text-right">
-                <p className="font-mono text-xs font-semibold"
-                   style={{ color: pm.priceDistancePct > 5 && !pm.isCapped ? '#ef4444' : pm.priceDistancePct > 0 ? '#f59e0b' : '#475569' }}>
-                  {pm.priceDistancePct > 0 ? '+' : ''}{pm.priceDistancePct.toFixed(3)}%
-                </p>
-                <p className="font-mono text-[9px] text-slate-500">
-                  {(collateralEth * pm.priceDistancePct / 100).toFixed(4)} ETH
-                </p>
-              </div>
-            </div>
-
-            {/* Total Premium */}
-            <div className="flex justify-between items-center px-3 py-2 border-b border-[#1c2636] bg-white/[0.02]">
-              <div>
-                <div className="flex items-center gap-1">
-                  <span className="text-[9px] font-semibold text-slate-300">Total Premium</span>
-                  {pm.isCapped && (
-                    <span className="text-[8px] font-bold px-1 py-px rounded"
-                          style={{ color: '#00d4aa', background: 'rgba(0,212,170,0.12)', border: '1px solid rgba(0,212,170,0.3)' }}>
-                      CAP ✓
-                    </span>
-                  )}
-                </div>
-                <p className="text-[9px] text-slate-500 mt-0.5">
-                  {pm.isCapped
-                    ? `≤70% of ΔP · saved ${(pm.uncappedTotalPct - pm.totalPct).toFixed(3)}%`
-                    : `${pm.totalPct.toFixed(3)}% of collateral`}
-                </p>
-              </div>
-              <span className="font-mono text-xs font-bold text-red-400">
-                −{pm.premiumCostEth.toFixed(4)} ETH
-              </span>
-            </div>
-
-            {/* Platform Gas Fund (treasury fee breakdown) */}
-            <div className="flex justify-between items-center px-3 py-1.5 border-b border-[#1c2636]"
-                 style={{ background: 'rgba(0,212,170,0.025)' }}>
-              <div>
-                <p className="text-[9px] text-teal/70 font-semibold">Platform Gas Fund</p>
-                <p className="text-[9px] text-slate-600">BASE_RATE 0.1% → Treasury</p>
-              </div>
-              <div className="text-right">
-                <p className="font-mono text-[10px] font-semibold text-teal/70">
-                  {pm.baseFeeEth.toFixed(6)} ETH
-                </p>
-                <p className="font-mono text-[9px] text-slate-600">of total premium</p>
-              </div>
-            </div>
-
-            {/* Net Position */}
-            <div className="flex justify-between items-center px-3 py-3"
-                 style={{ background: `${sideColor}12` }}>
-              <div>
-                <p className="text-xs font-bold text-slate-100">Net Position</p>
-                <p className="text-[9px] text-slate-500 mt-0.5">Collateral − Premium</p>
-              </div>
-              <span className="font-mono text-base font-bold" style={{ color: sideColor }}>
-                {pm.netPositionEth.toFixed(4)} ETH
-              </span>
-            </div>
-          </div>
-
-          {/* Sub-col B: PRICE & PROFIT */}
-          <div>
-            <div className="px-3 py-1.5 bg-[#0a0f1a] border-b border-[#1c2636]">
-              <span className="text-[9px] font-bold uppercase tracking-wider text-slate-500">
-                {t?.priceProfit ?? 'Price & Profit'}
-              </span>
-            </div>
-
-            {/* Entry Price */}
-            <div className="flex justify-between items-center px-3 py-2 border-b border-[#1c2636]">
-              <div>
-                <p className="text-[9px] text-slate-500">Entry Price</p>
-                <p className="text-[9px] text-slate-600">P_oracle · fair</p>
-              </div>
-              <span className="font-mono text-sm font-bold" style={{ color: sideColor }}>
-                ${pEntry.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
-              </span>
-            </div>
-
-            {/* Strike Target */}
-            <div className="flex justify-between items-center px-3 py-2 border-b border-[#1c2636] bg-white/[0.02]">
-              <p className="text-[9px] text-slate-500">Strike Target</p>
-              <span className="font-mono text-xs font-semibold text-amber">
-                ${targetPrice.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
-              </span>
-            </div>
-
-            {/* Possible profit inline */}
-            <PossibleProfit
-              isLong={isLong}
-              netPositionEth={pm.netPositionEth}
-              collateral={collateralEth}
-              pEntry={pEntry}
-              targetPrice={targetPrice}
-            />
-          </div>
-        </div>
+        <PossibleProfit
+          isLong={isLong}
+          netPositionEth={pm.netPositionEth}
+          collateral={collateralEth}
+          pEntry={pEntry}
+          targetPrice={targetPrice}
+        />
       </div>
 
       {/* Tx feedback */}

@@ -22,7 +22,8 @@ const NAV = [
   {
     section: 'การทำรายการ',
     items: [
-      { id: 'uc-long', label: 'UC · เปิด Long Order' },
+      { id: 'uc-long',       label: 'UC · เปิด Long Order' },
+      { id: 'uc-etherscan',  label: 'UC · ตรวจสอบบน Etherscan' },
     ],
   },
 ];
@@ -208,6 +209,41 @@ const PAGES = {
       {
         heading: 'เงื่อนไข ITM ของ Long',
         body: 'สถานะ Long เป็น In-the-Money (ITM) เมื่อ P_final > P_target\n\nหาก ITM: ผลตอบแทน = N × (1 + ΔP)  โดย ΔP = |P_entry − P_target| / P_target\nหาก OTM: ได้รับ N คืน (ทุนสุทธิหลังหักเบี้ย)',
+      },
+    ],
+  },
+
+  'uc-etherscan': {
+    title: 'ตรวจสอบธุรกรรมบน Etherscan',
+    badge: 'การทำรายการ',
+    sections: [
+      {
+        heading: 'คำอธิบาย',
+        body: 'หลังจากยืนยันธุรกรรมใน MetaMask ผู้ใช้สามารถตรวจสอบสถานะและรายละเอียดทั้งหมดบน Sepolia Etherscan ได้แบบ real-time เพื่อยืนยันว่า transaction ถูก mine สำเร็จและ smart contract รับ position เรียบร้อย',
+      },
+      {
+        heading: 'ขั้นตอนเปิด Etherscan จาก MetaMask',
+        body: '1. หลัง confirm tx ใน MetaMask คลิกที่ popup notification ที่ขึ้นมา หรือเปิด MetaMask แล้วไปที่แท็บ Activity\n2. คลิกที่รายการธุรกรรมล่าสุด\n3. คลิก "View on block explorer" — MetaMask จะเปิด Sepolia Etherscan ในแท็บใหม่พร้อม tx hash อัตโนมัติ',
+      },
+      {
+        heading: 'ขั้นตอนค้นหาด้วย Tx Hash โดยตรง',
+        body: '1. Copy tx hash จาก MetaMask (รูปแบบ 0x... ยาว 66 ตัวอักษร)\n2. เปิดเบราว์เซอร์ไปที่ sepolia.etherscan.io\n3. วาง tx hash ในช่องค้นหาแล้วกด Enter\n4. หน้า Transaction Detail จะเปิดขึ้น',
+      },
+      {
+        heading: 'สิ่งที่ต้องตรวจสอบ',
+        body: '• Status — ต้องแสดง "Success" (สีเขียว) หาก Pending รอ block ถัดไป หาก Failed ดู revert reason\n• Block — หมายเลข block ที่ tx ถูก mine บันทึกไว้ ซึ่งเป็น block เดียวกับที่ P_entry ถูกอ่านจาก oracle\n• To — ต้องเป็น contract address 0x111Dc5a9D306493b9C51ebF63EE19b001B8082cb\n• Value — จำนวน ETH ที่ส่งไป (collateral ที่ใส่)\n• Gas Used — ค่า gas จริงที่ถูกหักจากกระเป๋า',
+      },
+      {
+        heading: 'ตรวจสอบ Event Log',
+        body: '1. เลื่อนลงมาที่แท็บ "Logs" ในหน้า Transaction\n2. หา event ชื่อ PositionOpened (หรือชื่อตาม contract)\n3. ใน event data จะเห็น:\n   • cycleId — หมายเลขรอบที่เปิดสถานะ\n   • trader — address ของผู้เล่น\n   • isLong — true = Long, false = Short\n   • collateral — จำนวน ETH ที่ฝาก\n   • entryPrice — P_entry ที่ oracle ให้ ณ block นั้น',
+      },
+      {
+        heading: 'ตรวจสอบ Internal Transactions',
+        body: '1. คลิกแท็บ "Internal Txns"\n2. จะเห็นการโอน ETH จากกระเป๋าเข้าสู่ contract\n3. ถ้ามีการโอนออกด้วย (เช่น การคืนทุน OTM หลัง settle) จะเห็นในหน้านี้เช่นกัน',
+      },
+      {
+        heading: 'Link โดยตรง',
+        body: 'Sepolia Etherscan: sepolia.etherscan.io\nContract address: sepolia.etherscan.io/address/0x111Dc5a9D306493b9C51ebF63EE19b001B8082cb',
       },
     ],
   },

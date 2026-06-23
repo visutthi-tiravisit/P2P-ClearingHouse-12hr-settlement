@@ -4,6 +4,7 @@ import ConnectWallet from './components/ConnectWallet';
 import Topbar       from './components/Topbar';
 import Sidebar      from './components/Sidebar';
 import Dashboard    from './pages/Dashboard';
+import WikiPage     from './pages/WikiPage';
 import { useCycle } from './hooks/useCycle';
 
 // ─── Language context ─────────────────────────────────────────────────────────
@@ -151,16 +152,21 @@ export const useLang = () => useContext(LangContext);
 // ─── Inner app (uses wallet context) ────────────────────────────────────────
 
 function AppInner({ lang, onToggleLang, darkMode, onToggleTheme }) {
-  const { isConnected }            = useWallet();
-  const { cycle }                  = useCycle();
+  const { isConnected }             = useWallet();
+  const { cycle }                   = useCycle();
   const [activePage, setActivePage] = useState('dashboard');
+  const [wikiOpen,  setWikiOpen]    = useState(false);
 
   const t = TRANSLATIONS[lang];
+
+  if (wikiOpen) {
+    return <WikiPage onClose={() => setWikiOpen(false)} />;
+  }
 
   if (!isConnected) {
     return (
       <div className="h-screen flex flex-col">
-        <Topbar t={t} lang={lang} onToggleLang={onToggleLang} darkMode={darkMode} onToggleTheme={onToggleTheme} />
+        <Topbar t={t} lang={lang} onToggleLang={onToggleLang} darkMode={darkMode} onToggleTheme={onToggleTheme} onOpenWiki={() => setWikiOpen(true)} />
         <ConnectWallet t={t} />
       </div>
     );
@@ -168,7 +174,7 @@ function AppInner({ lang, onToggleLang, darkMode, onToggleTheme }) {
 
   return (
     <div className="h-screen flex flex-col overflow-hidden">
-      <Topbar t={t} lang={lang} onToggleLang={onToggleLang} darkMode={darkMode} onToggleTheme={onToggleTheme} />
+      <Topbar t={t} lang={lang} onToggleLang={onToggleLang} darkMode={darkMode} onToggleTheme={onToggleTheme} onOpenWiki={() => setWikiOpen(true)} />
       <div className="flex flex-1 overflow-hidden">
         <Sidebar t={t} activePage={activePage} onNavigate={setActivePage} cycle={cycle} />
         <main className="flex-1 overflow-hidden">

@@ -20,43 +20,17 @@ const NAV = [
     ],
   },
   {
-    section: 'หน้าจอ',
+    section: 'การทำรายการ',
     items: [
-      { id: 'uc03', label: 'UC-03 · เปลี่ยนธีม' },
-      { id: 'uc04', label: 'UC-04 · เปลี่ยนภาษา' },
+      { id: 'uc-long',  label: 'UC · เปิด Long Order' },
+      { id: 'uc-short', label: 'UC · เปิด Short Order' },
     ],
   },
   {
-    section: 'ข้อมูลตลาด',
+    section: 'ตรวจสอบธุรกรรม',
     items: [
-      { id: 'uc05', label: 'UC-05 · สถานะรอบ' },
-      { id: 'uc06', label: 'UC-06 · ราคาตลาด' },
-      { id: 'uc07', label: 'UC-07 · กองทุนสภาพคล่อง' },
-    ],
-  },
-  {
-    section: 'การซื้อขาย',
-    items: [
-      { id: 'uc08', label: 'UC-08 · เปิด Long' },
-      { id: 'uc09', label: 'UC-09 · เปิด Short' },
-      { id: 'uc10', label: 'UC-10 · สรุปคำสั่ง' },
-    ],
-  },
-  {
-    section: 'สถานะของฉัน',
-    items: [
-      { id: 'uc11', label: 'UC-11 · ดูสถานะ' },
-      { id: 'uc12', label: 'UC-12 · คำนวณผลตอบแทน' },
-      { id: 'uc13', label: 'UC-13 · ITM / OTM' },
-    ],
-  },
-  {
-    section: 'ขั้นสูง',
-    items: [
-      { id: 'uc14', label: 'UC-14 · ตารางข้อมูลหลัก' },
-      { id: 'uc15', label: 'UC-15 · Sandbox Panel' },
-      { id: 'uc16', label: 'UC-16 · คำนวณเบี้ยประกัน' },
-      { id: 'uc17', label: 'UC-17 · การจ่ายผลตอบแทน' },
+      { id: 'uc-etherscan',      label: 'UC · ตรวจสอบธุรกรรมของฉัน' },
+      { id: 'uc-etherscan-vault', label: 'UC · ตรวจสอบธุรกรรมของ Vault' },
     ],
   },
 ];
@@ -215,335 +189,243 @@ const PAGES = {
     ],
   },
 
-  uc03: {
-    title: 'UC-03: เปลี่ยนธีม',
-    badge: 'หน้าจอ',
+  'uc-long': {
+    title: 'เปิด Long Order',
+    badge: 'การทำรายการ',
     sections: [
       {
         heading: 'คำอธิบาย',
-        body: 'ผู้ใช้สลับระหว่าง Dark mode (ค่าเริ่มต้น) และ Light mode',
+        body: 'ผู้ใช้เปิดสถานะ Long เพื่อเดิมพันว่าราคา ETH/USD ณ สิ้นรอบจะสูงกว่าราคาเป้าหมาย (P_target) ที่ถูกกำหนดไว้ตั้งแต่เริ่มรอบ',
       },
       {
         heading: 'เงื่อนไขก่อนใช้งาน',
-        body: 'แอปโหลดแล้ว (ไม่จำเป็นต้องเชื่อมต่อกระเป๋า)',
+        body: '• กระเป๋า MetaMask เชื่อมต่อและอยู่บน Sepolia network\n• มี Sepolia ETH เพียงพอ (ขั้นต่ำ 0.001 ETH บวกค่า gas)\n• มีรอบการซื้อขายที่ active อยู่ในขณะนั้น\n• กระเป๋าต้องไม่ใช่ Treasury address (Treasury ไม่สามารถเปิดสถานะได้)',
       },
       {
         heading: 'ขั้นตอน',
-        body: '1. คลิกไอคอนดวงอาทิตย์/ดวงจันทร์ใน Topbar\n2. สีพื้นหลัง card และข้อความอัปเดตทันที',
+        body: '1. บน Dashboard เลื่อนไปที่ TradePanel\n2. เลือกฝั่ง "Long" — ปุ่มจะ highlight สีน้ำเงิน\n3. ใส่จำนวน collateral (ETH) ในช่อง Collateral\n4. ตรวจสอบ Order Summary ที่อัปเดต real-time:\n   • เบี้ยรวม (Total Premium %)\n   • Net Position หลังหักเบี้ย\n   • Possible Profit หากราคาขยับตามคาด\n5. คลิกปุ่ม "Open Long"\n6. MetaMask popup ปรากฏ — ตรวจสอบจำนวน ETH และกด Confirm\n7. รอธุรกรรมถูก mine (ปุ่มจะแสดง "Broadcasting Tx…" ระหว่างรอ)',
+      },
+      {
+        heading: 'สิ่งที่เกิดขึ้นใน Smart Contract',
+        body: 'เมื่อธุรกรรมถูก mine:\n• สัญญาบันทึก P_entry = ราคา Chainlink ณ เวลาที่ block ถูก confirm\n• หักเบี้ยประกันรวมออกจาก collateral → ได้ Net Position (N)\n• เพิ่ม N เข้า Long pool ของรอบปัจจุบัน\n• บันทึก position ด้วย Cycle ID, P_entry, P_target, N, และ address ผู้เล่น',
       },
       {
         heading: 'ผลลัพธ์หลังดำเนินการ',
-        body: 'ธีมที่เลือกคงอยู่ตลอด session ปัจจุบัน Dark mode เป็นค่าเริ่มต้น',
+        body: '• สถานะ Long ปรากฏใน Holdings Table พร้อม badge "ITM" หรือ "OTM" ตามราคา live\n• Long pool ใน Pool Meter เพิ่มขึ้น\n• สถานะจะถูก settle อัตโนมัติเมื่อสิ้นรอบ 12 ชั่วโมง',
+      },
+      {
+        heading: 'เงื่อนไข ITM ของ Long',
+        body: 'สถานะ Long เป็น In-the-Money (ITM) เมื่อ P_final > P_target\n\nหาก ITM: ผลตอบแทน = N × (1 + ΔP)  โดย ΔP = |P_entry − P_target| / P_target\nหาก OTM: ได้รับ N คืน (ทุนสุทธิหลังหักเบี้ย)',
       },
     ],
   },
 
-  uc04: {
-    title: 'UC-04: เปลี่ยนภาษา',
-    badge: 'หน้าจอ',
+  'uc-short': {
+    title: 'เปิด Short Order',
+    badge: 'การทำรายการ',
     sections: [
       {
         heading: 'คำอธิบาย',
-        body: 'ผู้ใช้สลับภาษาของ UI ระหว่างอังกฤษ (EN) และไทย (TH)',
+        body: 'ผู้ใช้เปิดสถานะ Short เพื่อเดิมพันว่าราคา ETH/USD ณ สิ้นรอบจะต่ำกว่าราคาเป้าหมาย (P_target) ที่ถูกกำหนดไว้ตั้งแต่เริ่มรอบ Short เป็นฝั่งตรงข้ามของ Long — ผู้เล่นทั้งสองฝั่งเป็นคู่สัญญากันโดยตรงผ่าน pool',
       },
       {
         heading: 'เงื่อนไขก่อนใช้งาน',
-        body: 'แอปโหลดแล้ว',
+        body: '• กระเป๋า MetaMask เชื่อมต่อและอยู่บน Sepolia network\n• มี Sepolia ETH เพียงพอ (ขั้นต่ำ 0.001 ETH บวกค่า gas)\n• มีรอบการซื้อขายที่ active อยู่ในขณะนั้น\n• กระเป๋าต้องไม่ใช่ Treasury address (Treasury ไม่สามารถเปิดสถานะได้)',
       },
       {
         heading: 'ขั้นตอน',
-        body: '1. คลิกปุ่ม "TH" / "EN" ใน Topbar\n2. ป้ายกำกับ หัวคอลัมน์ และข้อความสถานะทั้งหมดอัปเดตเป็นภาษาที่เลือก',
+        body: '1. บน Dashboard เลื่อนไปที่ TradePanel\n2. เลือกฝั่ง "Short" — ปุ่มจะ highlight สีม่วง\n3. ใส่จำนวน collateral (ETH) ในช่อง Collateral\n4. ตรวจสอบ Order Summary ที่อัปเดต real-time:\n   • เบี้ยรวม (Total Premium %)\n   • Net Position หลังหักเบี้ย\n   • Possible Profit หากราคาลงตามคาด\n5. คลิกปุ่ม "Open Short"\n6. MetaMask popup ปรากฏ — ตรวจสอบจำนวน ETH และกด Confirm\n7. รอธุรกรรมถูก mine (ปุ่มจะแสดง "Broadcasting Tx…" ระหว่างรอ)',
+      },
+      {
+        heading: 'สิ่งที่เกิดขึ้นใน Smart Contract',
+        body: 'เมื่อธุรกรรมถูก mine:\n• สัญญาบันทึก P_entry = ราคา Chainlink ณ เวลาที่ block ถูก confirm\n• หักเบี้ยประกันรวมออกจาก collateral → ได้ Net Position (N)\n• เพิ่ม N เข้า Short pool ของรอบปัจจุบัน\n• บันทึก position ด้วย Cycle ID, P_entry, P_target, N, และ address ผู้เล่น',
       },
       {
         heading: 'ผลลัพธ์หลังดำเนินการ',
-        body: 'ภาษาที่เลือกใช้งานตลอด session ตัวเลขและ address ไม่ถูกแปล',
+        body: '• สถานะ Short ปรากฏใน Holdings Table พร้อม badge "ITM" หรือ "OTM" ตามราคา live\n• Short pool ใน Pool Meter เพิ่มขึ้น\n• สถานะจะถูก settle อัตโนมัติเมื่อสิ้นรอบ 12 ชั่วโมง',
+      },
+      {
+        heading: 'เงื่อนไข ITM ของ Short',
+        body: 'สถานะ Short เป็น In-the-Money (ITM) เมื่อ P_final < P_target\n\nหาก ITM: ผลตอบแทน = N × (1 + ΔP)  โดย ΔP = |P_entry − P_target| / P_target\nหาก OTM: ได้รับ N คืน (ทุนสุทธิหลังหักเบี้ย)',
+      },
+      {
+        heading: 'ความแตกต่างจาก Long',
+        body: '• ปุ่มเลือกฝั่งเป็น "Short" (สีม่วง) แทน "Long" (สีน้ำเงิน)\n• N ถูกเพิ่มเข้า Short pool แทน Long pool\n• ITM เมื่อราคา ลง ต่ำกว่า P_target (Long ITM เมื่อราคา ขึ้น)\n• ผลตอบแทนมาจาก Long pool ของฝั่งตรงข้าม ไม่ใช่ Short pool',
       },
     ],
   },
 
-  uc05: {
-    title: 'UC-05: ดูสถานะรอบ',
-    badge: 'ข้อมูลตลาด',
+  'uc-etherscan': {
+    title: 'ตรวจสอบธุรกรรมของฉันบน Etherscan',
+    badge: 'ตรวจสอบธุรกรรม',
     sections: [
       {
         heading: 'คำอธิบาย',
-        body: 'ผู้ใช้ดูข้อมูลรอบการชำระเงินที่ active รวมถึง Cycle ID เวลาเริ่ม/สิ้นสุด และนาฬิกานับถอยหลัง',
+        body: 'หลังจากยืนยันธุรกรรมใน MetaMask ผู้ใช้สามารถตรวจสอบสถานะและรายละเอียดทั้งหมดบน Sepolia Etherscan ได้แบบ real-time เพื่อยืนยันว่า transaction ถูก mine สำเร็จและ smart contract รับ position เรียบร้อย',
       },
       {
-        heading: 'เงื่อนไขก่อนใช้งาน',
-        body: 'กระเป๋าเชื่อมต่อและอยู่บน Sepolia network',
+        heading: 'ขั้นตอนเปิด Etherscan จาก MetaMask',
+        body: '1. หลัง confirm tx ใน MetaMask คลิกที่ popup notification ที่ขึ้นมา หรือเปิด MetaMask แล้วไปที่แท็บ Activity\n2. คลิกที่รายการธุรกรรมล่าสุด\n3. คลิก "View on block explorer" — MetaMask จะเปิด Sepolia Etherscan ในแท็บใหม่พร้อม tx hash อัตโนมัติ',
       },
       {
-        heading: 'ขั้นตอน',
-        body: '1. เปิด Dashboard\n2. หา card Cycle Status ที่มุมซ้ายบน\n3. card แสดง: Cycle ID, timestamp เริ่มต้น, timestamp สิ้นสุด, เวลาที่เหลือ, และ phase ปัจจุบัน (Stable / Warning / Critical)',
+        heading: 'ขั้นตอนค้นหาด้วย Tx Hash โดยตรง',
+        body: '1. Copy tx hash จาก MetaMask (รูปแบบ 0x... ยาว 66 ตัวอักษร)\n2. เปิดเบราว์เซอร์ไปที่ sepolia.etherscan.io\n3. วาง tx hash ในช่องค้นหาแล้วกด Enter\n4. หน้า Transaction Detail จะเปิดขึ้น',
       },
       {
-        heading: 'ผลลัพธ์หลังดำเนินการ',
-        body: 'นาฬิกานับถอยหลังอัปเดตทุกวินาที การเปลี่ยน phase สะท้อนทันที',
+        heading: 'สิ่งที่ต้องตรวจสอบ',
+        body: '• Status — ต้องแสดง "Success" (สีเขียว) หาก Pending รอ block ถัดไป หาก Failed ดู revert reason\n• Block — หมายเลข block ที่ tx ถูก mine บันทึกไว้ ซึ่งเป็น block เดียวกับที่ P_entry ถูกอ่านจาก oracle\n• To — ต้องเป็น contract address 0x111Dc5a9D306493b9C51ebF63EE19b001B8082cb\n• Value — จำนวน ETH ที่ส่งไป (collateral ที่ใส่)\n• Gas Used — ค่า gas จริงที่ถูกหักจากกระเป๋า',
+      },
+      {
+        heading: 'ตรวจสอบ Event Log',
+        body: '1. เลื่อนลงมาที่แท็บ "Logs" ในหน้า Transaction\n2. หา event ชื่อ PositionOpened (หรือชื่อตาม contract)\n3. ใน event data จะเห็น:\n   • cycleId — หมายเลขรอบที่เปิดสถานะ\n   • trader — address ของผู้เล่น\n   • isLong — true = Long, false = Short\n   • collateral — จำนวน ETH ที่ฝาก\n   • entryPrice — P_entry ที่ oracle ให้ ณ block นั้น',
+      },
+      {
+        heading: 'ตรวจสอบ Internal Transactions',
+        body: '1. คลิกแท็บ "Internal Txns"\n2. จะเห็นการโอน ETH จากกระเป๋าเข้าสู่ contract\n3. ถ้ามีการโอนออกด้วย (เช่น การคืนทุน OTM หลัง settle) จะเห็นในหน้านี้เช่นกัน',
+      },
+      {
+        heading: 'Link โดยตรง',
+        body: 'Sepolia Etherscan: sepolia.etherscan.io\nContract address: sepolia.etherscan.io/address/0x111Dc5a9D306493b9C51ebF63EE19b001B8082cb',
       },
     ],
   },
 
-  uc06: {
-    title: 'UC-06: ดูราคาตลาด',
-    badge: 'ข้อมูลตลาด',
+  'uc-etherscan-vault': {
+    title: 'ตรวจสอบธุรกรรมของ Vault บน Etherscan',
+    badge: 'ตรวจสอบธุรกรรม',
     sections: [
       {
         heading: 'คำอธิบาย',
-        body: 'ผู้ใช้ดูราคา ETH/USD live จาก Chainlink oracle และกราฟราคาย้อนหลังในรอบปัจจุบัน',
+        body: 'Vault คือ smart contract ที่รับและถือ ETH ของผู้เล่นทุกคน การดูธุรกรรมของ Vault ช่วยให้เห็นภาพรวมของกิจกรรมทั้งหมดในระบบ เช่น ใครเปิดสถานะบ้าง มีการ settle รอบไหนไปแล้ว และเงินไหลเข้า-ออกอย่างไร',
       },
       {
-        heading: 'เงื่อนไขก่อนใช้งาน',
-        body: 'กระเป๋าเชื่อมต่อแล้ว',
+        heading: 'เปิดหน้า Vault บน Etherscan',
+        body: '1. ไปที่ sepolia.etherscan.io\n2. วาง contract address ในช่องค้นหา:\n   0x111Dc5a9D306493b9C51ebF63EE19b001B8082cb\n3. กด Enter — หน้า Contract Overview จะเปิดขึ้น',
       },
       {
-        heading: 'ขั้นตอน',
-        body: '1. component PriceChart แสดงอยู่บน Dashboard\n2. ราคา oracle ปัจจุบันแสดงที่ด้านบนของกราฟ\n3. P_target (ราคา strike ของรอบ) แสดงเป็นเส้นอ้างอิง',
+        heading: 'แท็บ Transactions',
+        body: '• แสดงธุรกรรมทั้งหมดที่เรียก function บน contract\n• แต่ละแถวคือ 1 tx — ดูได้ว่า From (ผู้เล่น address ใด) ส่ง ETH เท่าไหร่ เมื่อไหร่\n• Method column บอกว่าเรียก function อะไร เช่น openPosition, settle, startCycle\n• กรองดูเฉพาะ tx ของ address ตัวเองได้โดยค้นหา address ของเราในช่อง Filter',
       },
       {
-        heading: 'ผลลัพธ์หลังดำเนินการ',
-        body: 'ราคาอัปเดตทุก oracle round กราฟ plot ประวัติราคาตลอดช่วงรอบปัจจุบัน',
+        heading: 'แท็บ Internal Transactions',
+        body: '• แสดงการโอน ETH ที่เกิดขึ้นภายใน contract เช่น การจ่ายผลตอบแทนออกจาก vault หลัง settle\n• ถ้าเห็น ETH โอนออก (To = address ผู้เล่น) แสดงว่า settle สำเร็จและผู้เล่นได้รับเงินคืน',
+      },
+      {
+        heading: 'แท็บ Events (Logs)',
+        body: '• แสดง event ทั้งหมดที่ contract emit ออกมาตลอดประวัติ\n• Event หลักที่น่าสนใจ:\n   PositionOpened — มีผู้เล่นเปิดสถานะใหม่\n   CycleStarted — Treasury เริ่มรอบใหม่ (บันทึก P_target)\n   CycleSettled — รอบถูก settle (บันทึก P_final และผล ITM/OTM)',
+      },
+      {
+        heading: 'แท็บ Contract',
+        body: '• ดู source code ของ Vault contract ได้ที่นี่ (ถ้า verified)\n• อ่าน ABI เพื่อดูชื่อ function และ parameter ทั้งหมดที่ contract รองรับ\n• ใช้ Read Contract เพื่อ query ข้อมูลปัจจุบัน เช่น currentCycleId, longPool, shortPool ได้โดยไม่ต้องส่ง tx',
+      },
+      {
+        heading: 'ดู ETH Balance ของ Vault',
+        body: '• ที่ด้านบนของหน้า Contract Overview จะแสดง ETH Balance ปัจจุบัน\n• ค่านี้ควรเท่ากับ longPool + shortPool ของรอบที่ active อยู่รวมกัน\n• ถ้ายอดเป็น 0 หลัง settle แสดงว่า ETH ถูกกระจายออกให้ผู้เล่นหมดแล้ว',
       },
     ],
   },
 
-  uc07: {
-    title: 'UC-07: ดูกองทุนสภาพคล่อง',
-    badge: 'ข้อมูลตลาด',
-    sections: [
-      {
-        heading: 'คำอธิบาย',
-        body: 'ผู้ใช้ดูยอด collateral ใน Long pool และ Short pool แบบ real-time',
-      },
-      {
-        heading: 'เงื่อนไขก่อนใช้งาน',
-        body: 'กระเป๋าเชื่อมต่อแล้ว',
-      },
-      {
-        heading: 'ขั้นตอน',
-        body: '1. หา component Pool Meter บน Dashboard\n2. แสดง Long ETH vs Short ETH พร้อม balance bar แบบ visual\n3. skew factor (0.5× / 1× / 2×) คำนวณจากอัตราส่วนและแสดงเป็น badge',
-      },
-      {
-        heading: 'ผลลัพธ์หลังดำเนินการ',
-        body: 'ยอด pool อัปเดต real-time หลังมีสถานะใหม่ถูกเปิด',
-      },
-    ],
-  },
-
-  uc08: {
-    title: 'UC-08: เปิดสถานะ Long',
-    badge: 'การซื้อขาย',
-    sections: [
-      {
-        heading: 'คำอธิบาย',
-        body: 'ผู้ใช้เปิดสถานะ Long โดยคาดว่าราคา ETH/USD จะสูงกว่า P_target เมื่อสิ้นรอบ',
-      },
-      {
-        heading: 'เงื่อนไขก่อนใช้งาน',
-        body: 'กระเป๋าเชื่อมต่อและมี Sepolia ETH เพียงพอ มีรอบที่ active อยู่ กระเป๋าต้องไม่ใช่ Treasury',
-      },
-      {
-        heading: 'ขั้นตอน',
-        body: '1. คลิก "Long" ใน TradePanel\n2. ใส่จำนวน collateral (ขั้นต่ำ 0.001 ETH)\n3. ตรวจสอบ Order Summary (เบี้ย, net position, กำไรที่เป็นไปได้)\n4. คลิก "Open Long" และยืนยันธุรกรรมใน MetaMask',
-      },
-      {
-        heading: 'ผลลัพธ์หลังดำเนินการ',
-        body: 'ธุรกรรมถูก mine สถานะปรากฏใน Holdings table ของรอบปัจจุบัน',
-      },
-    ],
-  },
-
-  uc09: {
-    title: 'UC-09: เปิดสถานะ Short',
-    badge: 'การซื้อขาย',
-    sections: [
-      {
-        heading: 'คำอธิบาย',
-        body: 'ผู้ใช้เปิดสถานะ Short โดยคาดว่าราคา ETH/USD จะต่ำกว่า P_target เมื่อสิ้นรอบ',
-      },
-      {
-        heading: 'เงื่อนไขก่อนใช้งาน',
-        body: 'กระเป๋าเชื่อมต่อและมี Sepolia ETH เพียงพอ มีรอบที่ active อยู่',
-      },
-      {
-        heading: 'ขั้นตอน',
-        body: '1. คลิก "Short" ใน TradePanel\n2. ใส่จำนวน collateral\n3. ตรวจสอบ Order Summary\n4. คลิก "Open Short" และยืนยันธุรกรรม',
-      },
-      {
-        heading: 'ผลลัพธ์หลังดำเนินการ',
-        body: 'ธุรกรรมถูก mine สถานะปรากฏใน Holdings ด้วย Side = Short',
-      },
-    ],
-  },
-
-  uc10: {
-    title: 'UC-10: สรุปคำสั่งซื้อขาย',
-    badge: 'การซื้อขาย',
-    sections: [
-      {
-        heading: 'คำอธิบาย',
-        body: 'ก่อน submit การซื้อขาย ผู้ใช้สามารถตรวจสอบรายละเอียดค่าธรรมเนียมทั้งหมดและกำไรที่เป็นไปได้',
-      },
-      {
-        heading: 'เงื่อนไขก่อนใช้งาน',
-        body: 'TradePanel มีจำนวน collateral ที่ถูกต้อง',
-      },
-      {
-        heading: 'ขั้นตอน',
-        body: '1. ใส่จำนวน collateral ใน TradePanel\n2. Order Summary อัปเดต live แสดง: เบี้ยฐาน, เบี้ยเอียง, เบี้ยเวลา, ค่าระยะห่างราคา, เบี้ยรวม %, Net Position, และ Possible Profit\n3. กด expand breakdown เพื่อดูคำอธิบายแต่ละฟิลด์',
-      },
-      {
-        heading: 'ผลลัพธ์หลังดำเนินการ',
-        body: 'ค่าทั้งหมดเป็นการประมาณจากราคา oracle และสถานะ pool ปัจจุบัน ค่าจริงอาจต่างเล็กน้อยเมื่อ mine transaction',
-      },
-    ],
-  },
-
-  uc11: {
-    title: 'UC-11: ดูสถานะของฉัน',
-    badge: 'สถานะของฉัน',
-    sections: [
-      {
-        heading: 'คำอธิบาย',
-        body: 'ผู้ใช้ดูสถานะที่เปิดอยู่ทั้งหมดในรอบปัจจุบันและรอบก่อนหน้า',
-      },
-      {
-        heading: 'เงื่อนไขก่อนใช้งาน',
-        body: 'กระเป๋าเชื่อมต่อ มีสถานะที่เปิดไว้อย่างน้อย 1 รายการ',
-      },
-      {
-        heading: 'ขั้นตอน',
-        body: '1. เลื่อนลงไปที่ส่วน HoldingsTable บน Dashboard\n2. ตารางแสดงแต่ละสถานะพร้อม: Cycle ID, Side, Entry Price, Target Price, Collateral, สถานะ (ITM / OTM), และ Est. Payout\n3. สถานะที่ settle แล้วแสดงจำนวน ETH ที่ claim ได้จริงจาก on-chain',
-      },
-      {
-        heading: 'ผลลัพธ์หลังดำเนินการ',
-        body: 'ตาราง refresh อัตโนมัติหลังทุก block',
-      },
-    ],
-  },
-
-  uc12: {
-    title: 'UC-12: คำนวณผลตอบแทน',
-    badge: 'สถานะของฉัน',
-    sections: [
-      {
-        heading: 'คำอธิบาย',
-        body: 'ระบบคำนวณผลตอบแทนที่คาดหวังของแต่ละสถานะโดยอิงจากราคา oracle ปัจจุบัน',
-      },
-      {
-        heading: 'สูตรการคำนวณ',
-        body: 'Net Position N = Collateral × (1 − เบี้ยรวม %)\nถ้า ITM: Payout = N × (1 + ΔP)  โดย ΔP = |P_entry − P_target| / P_target\nถ้า OTM: Payout = N  (คืนทุนเท่านั้น)',
-      },
-      {
-        heading: 'หมายเหตุ',
-        body: 'ผลตอบแทนที่แสดงใน Holdings สะท้อนยอดที่ claim ได้จริงจาก on-chain หลัง settle ก่อน settle เป็นเพียงการประมาณ สัญญาใช้สัดส่วน pool จริง ไม่ใช่สูตรโดยตรง',
-      },
-    ],
-  },
-
-  uc13: {
-    title: 'UC-13: สถานะ ITM / OTM',
-    badge: 'สถานะของฉัน',
-    sections: [
-      {
-        heading: 'คำอธิบาย',
-        body: 'แต่ละสถานะแสดงว่าอยู่ใน In The Money (ITM) หรือ Out of The Money (OTM) ตามราคา live ปัจจุบัน',
-      },
-      {
-        heading: 'กฎการตัดสิน',
-        body: 'สถานะ Long เป็น ITM เมื่อ P_ปัจจุบัน > P_target\nสถานะ Short เป็น ITM เมื่อ P_ปัจจุบัน < P_target',
-      },
-      {
-        heading: 'การแสดงผล',
-        body: 'สถานะ ITM แสดง badge สีเขียว "ITM" สถานะ OTM แสดง badge สีหม่น "OTM" สถานะอัปเดตทุกครั้งที่ราคา oracle เปลี่ยน',
-      },
-    ],
-  },
-
-  uc14: {
-    title: 'UC-14: ตารางข้อมูลหลัก',
-    badge: 'ขั้นสูง',
-    sections: [
-      {
-        heading: 'คำอธิบาย',
-        body: 'มุมมองข้อมูลดิบที่แสดงสถานะทั้งหมดในทุกรอบที่บันทึกไว้ใน smart contract',
-      },
-      {
-        heading: 'เงื่อนไขก่อนใช้งาน',
-        body: 'กระเป๋าเชื่อมต่อ เข้าถึงได้จาก Dashboard',
-      },
-      {
-        heading: 'ขั้นตอน',
-        body: '1. เลื่อนลงไปที่ส่วน MasterDataTable\n2. ตารางดึงข้อมูล Position events ทั้งหมดจากสัญญาและแสดงรายละเอียดครบ รวมถึง block number และ transaction hash',
-      },
-      {
-        heading: 'ประโยชน์',
-        body: 'ใช้สำหรับ audit, debug, และสาธิตความโปร่งใสของ on-chain',
-      },
-    ],
-  },
-
-  uc15: {
-    title: 'UC-15: Sandbox Panel',
-    badge: 'ขั้นสูง',
-    sections: [
-      {
-        heading: 'คำอธิบาย',
-        body: 'แผงควบคุมสำหรับ admin ใช้เรียก function บน contract เช่น force-settle รอบ',
-      },
-      {
-        heading: 'เงื่อนไขก่อนใช้งาน',
-        body: 'กระเป๋าที่เชื่อมต่อต้องเป็น Treasury (เจ้าของสัญญา) Sandbox Panel ถูกซ่อนสำหรับกระเป๋าอื่น',
-      },
-      {
-        heading: 'ขั้นตอน',
-        body: '1. เชื่อมต่อด้วยกระเป๋า Treasury\n2. Sandbox panel ปรากฏบน Dashboard\n3. ใช้ปุ่มที่มีเพื่อเรียก admin operations เช่น เริ่มรอบใหม่, force settle',
-      },
-      {
-        heading: 'คำเตือน',
-        body: 'การกระทำของ admin ไม่สามารถย้อนกลับได้บน on-chain ใช้ด้วยความระมัดระวัง',
-      },
-    ],
-  },
-
-  uc16: {
-    title: 'UC-16: คำนวณเบี้ยประกัน',
-    badge: 'ขั้นสูง',
-    sections: [
-      {
-        heading: 'คำอธิบาย',
-        body: 'ทำความเข้าใจวิธีคำนวณเบี้ยประกันแบบหลายชั้นก่อนที่สถานะจะถูกรับ',
-      },
-      {
-        heading: 'องค์ประกอบของเบี้ย',
-        body: 'R_base = 0.001 (0.10% ของ collateral)\nS_factor = 0.5 ถ้า long pool > 2× short; 2.0 ถ้า short pool > 2× long; ไม่งั้น 1.0\nR_skew = R_base × S_factor\nR_time = 0% (Stable) / 2% (Warning) / 5–10% (Critical แบบ interpolated)\nR_dist = min(0.7 × ΔP, 0.7) เมื่อ ΔP > 0 และสถานะได้เปรียบราคาแล้ว\nΠ_รวม = R_skew + R_time + R_dist',
-      },
-      {
-        heading: 'การนำไปใช้',
-        body: 'Net Position N = C × (1 − Π_รวม) โดย Π_รวม ถูก cap เพื่อไม่ให้ N ติดลบ',
-      },
-    ],
-  },
-
-  uc17: {
-    title: 'UC-17: การจ่ายผลตอบแทน',
-    badge: 'ขั้นสูง',
-    sections: [
-      {
-        heading: 'คำอธิบาย',
-        body: 'เมื่อสิ้นรอบ 12 ชั่วโมง สัญญากระจาย ITM pool ให้สถานะที่ชนะตามสัดส่วน',
-      },
-      {
-        heading: 'ลำดับการ settle',
-        body: '1. บันทึก P_final จาก oracle\n2. จำแนกทุกสถานะเป็น ITM หรือ OTM\n3. net position ของฝั่ง OTM ถูกรวมเป็น payout pool\n4. แต่ละสถานะ ITM ได้รับ: (net ของตัวเอง / net ITM รวม) × payout pool',
-      },
-      {
-        heading: 'การรับผลตอบแทน',
-        body: 'หลัง settle ยอด ETH ที่ claim ได้ปรากฏใน Holdings table สำหรับทุกสถานะที่ settle แล้ว',
-      },
-    ],
-  },
 };
+
+// ─── Body renderer ────────────────────────────────────────────────────────────
+
+function BodyRenderer({ body }) {
+  const lines = body.split('\n');
+  const blocks = [];
+  let i = 0;
+
+  while (i < lines.length) {
+    const line = lines[i];
+
+    if (!line.trim()) { i++; continue; }
+
+    // Numbered item (may have indented sub-bullets immediately after)
+    if (/^\d+\./.test(line.trim())) {
+      const items = [];
+      while (i < lines.length && /^\d+\./.test(lines[i].trim())) {
+        const text = lines[i].trim().replace(/^\d+\.\s*/, '');
+        const subItems = [];
+        i++;
+        while (i < lines.length && /^\s+•/.test(lines[i])) {
+          subItems.push(lines[i].trim().replace(/^•\s*/, ''));
+          i++;
+        }
+        items.push({ text, subItems });
+      }
+      blocks.push({ type: 'ol', items });
+      continue;
+    }
+
+    // Top-level bullet
+    if (/^•/.test(line.trim())) {
+      const items = [];
+      while (i < lines.length && /^•/.test(lines[i].trim())) {
+        items.push(lines[i].trim().replace(/^•\s*/, ''));
+        i++;
+      }
+      blocks.push({ type: 'ul', items });
+      continue;
+    }
+
+    // Plain text — collect until empty line, bullet, or numbered item
+    const textLines = [];
+    while (
+      i < lines.length &&
+      lines[i].trim() &&
+      !/^\d+\./.test(lines[i].trim()) &&
+      !/^•/.test(lines[i].trim()) &&
+      !/^\s+•/.test(lines[i])
+    ) {
+      textLines.push(lines[i]);
+      i++;
+    }
+    if (textLines.length) blocks.push({ type: 'p', text: textLines.join('\n') });
+  }
+
+  return (
+    <div className="space-y-2.5 text-sm text-slate-400 leading-relaxed">
+      {blocks.map((block, bi) => {
+        if (block.type === 'ol') {
+          return (
+            <ol key={bi} className="space-y-2">
+              {block.items.map((item, ii) => (
+                <li key={ii} className="flex gap-2.5">
+                  <span className="text-teal/50 font-mono shrink-0 w-5 text-right">{ii + 1}.</span>
+                  <span>
+                    {item.text}
+                    {item.subItems.length > 0 && (
+                      <ul className="mt-1.5 space-y-1">
+                        {item.subItems.map((sub, si) => (
+                          <li key={si} className="flex gap-2 text-slate-500 ml-1">
+                            <span className="text-teal/30 shrink-0">•</span>
+                            <span>{sub}</span>
+                          </li>
+                        ))}
+                      </ul>
+                    )}
+                  </span>
+                </li>
+              ))}
+            </ol>
+          );
+        }
+        if (block.type === 'ul') {
+          return (
+            <ul key={bi} className="space-y-1.5">
+              {block.items.map((item, ii) => (
+                <li key={ii} className="flex gap-2.5">
+                  <span className="text-teal/50 shrink-0">•</span>
+                  <span>{item}</span>
+                </li>
+              ))}
+            </ul>
+          );
+        }
+        return <p key={bi} className="whitespace-pre-line">{block.text}</p>;
+      })}
+    </div>
+  );
+}
 
 // ─── Content renderer ─────────────────────────────────────────────────────────
 
@@ -566,9 +448,7 @@ function PageContent({ pageId }) {
               <span className="w-1 h-4 rounded-full bg-teal/60 inline-block" />
               {sec.heading}
             </h2>
-            <p className="text-sm text-slate-400 leading-relaxed whitespace-pre-line">
-              {sec.body}
-            </p>
+            <BodyRenderer body={sec.body} />
           </section>
         ))}
       </div>

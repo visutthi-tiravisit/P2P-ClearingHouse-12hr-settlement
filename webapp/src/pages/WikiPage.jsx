@@ -1,4 +1,5 @@
 import { useState } from 'react';
+import { useNavigate } from 'react-router-dom';
 
 // ─── Navigation tree ──────────────────────────────────────────────────────────
 
@@ -502,7 +503,8 @@ function PageContent({ pageId }) {
 
 // ─── Main WikiPage ────────────────────────────────────────────────────────────
 
-export default function WikiPage({ onClose }) {
+export default function WikiPage() {
+  const navigate = useNavigate();
   const [activePage, setActivePage] = useState('overview');
 
   return (
@@ -527,7 +529,7 @@ export default function WikiPage({ onClose }) {
 
         {/* Close */}
         <button
-          onClick={onClose}
+          onClick={() => navigate('/')}
           className="btn-ghost flex items-center gap-1.5 text-xs"
           title="Back to app"
         >

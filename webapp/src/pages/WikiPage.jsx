@@ -22,8 +22,14 @@ const NAV = [
   {
     section: 'การทำรายการ',
     items: [
-      { id: 'uc-long',       label: 'UC · เปิด Long Order' },
-      { id: 'uc-etherscan',  label: 'UC · ตรวจสอบบน Etherscan' },
+      { id: 'uc-long', label: 'UC · เปิด Long Order' },
+    ],
+  },
+  {
+    section: 'ตรวจสอบธุรกรรม',
+    items: [
+      { id: 'uc-etherscan',      label: 'UC · ตรวจสอบธุรกรรมของฉัน' },
+      { id: 'uc-etherscan-vault', label: 'UC · ตรวจสอบธุรกรรมของ Vault' },
     ],
   },
 ];
@@ -214,8 +220,8 @@ const PAGES = {
   },
 
   'uc-etherscan': {
-    title: 'ตรวจสอบธุรกรรมบน Etherscan',
-    badge: 'การทำรายการ',
+    title: 'ตรวจสอบธุรกรรมของฉันบน Etherscan',
+    badge: 'ตรวจสอบธุรกรรม',
     sections: [
       {
         heading: 'คำอธิบาย',
@@ -244,6 +250,41 @@ const PAGES = {
       {
         heading: 'Link โดยตรง',
         body: 'Sepolia Etherscan: sepolia.etherscan.io\nContract address: sepolia.etherscan.io/address/0x111Dc5a9D306493b9C51ebF63EE19b001B8082cb',
+      },
+    ],
+  },
+
+  'uc-etherscan-vault': {
+    title: 'ตรวจสอบธุรกรรมของ Vault บน Etherscan',
+    badge: 'ตรวจสอบธุรกรรม',
+    sections: [
+      {
+        heading: 'คำอธิบาย',
+        body: 'Vault คือ smart contract ที่รับและถือ ETH ของผู้เล่นทุกคน การดูธุรกรรมของ Vault ช่วยให้เห็นภาพรวมของกิจกรรมทั้งหมดในระบบ เช่น ใครเปิดสถานะบ้าง มีการ settle รอบไหนไปแล้ว และเงินไหลเข้า-ออกอย่างไร',
+      },
+      {
+        heading: 'เปิดหน้า Vault บน Etherscan',
+        body: '1. ไปที่ sepolia.etherscan.io\n2. วาง contract address ในช่องค้นหา:\n   0x111Dc5a9D306493b9C51ebF63EE19b001B8082cb\n3. กด Enter — หน้า Contract Overview จะเปิดขึ้น',
+      },
+      {
+        heading: 'แท็บ Transactions',
+        body: '• แสดงธุรกรรมทั้งหมดที่เรียก function บน contract\n• แต่ละแถวคือ 1 tx — ดูได้ว่า From (ผู้เล่น address ใด) ส่ง ETH เท่าไหร่ เมื่อไหร่\n• Method column บอกว่าเรียก function อะไร เช่น openPosition, settle, startCycle\n• กรองดูเฉพาะ tx ของ address ตัวเองได้โดยค้นหา address ของเราในช่อง Filter',
+      },
+      {
+        heading: 'แท็บ Internal Transactions',
+        body: '• แสดงการโอน ETH ที่เกิดขึ้นภายใน contract เช่น การจ่ายผลตอบแทนออกจาก vault หลัง settle\n• ถ้าเห็น ETH โอนออก (To = address ผู้เล่น) แสดงว่า settle สำเร็จและผู้เล่นได้รับเงินคืน',
+      },
+      {
+        heading: 'แท็บ Events (Logs)',
+        body: '• แสดง event ทั้งหมดที่ contract emit ออกมาตลอดประวัติ\n• Event หลักที่น่าสนใจ:\n   PositionOpened — มีผู้เล่นเปิดสถานะใหม่\n   CycleStarted — Treasury เริ่มรอบใหม่ (บันทึก P_target)\n   CycleSettled — รอบถูก settle (บันทึก P_final และผล ITM/OTM)',
+      },
+      {
+        heading: 'แท็บ Contract',
+        body: '• ดู source code ของ Vault contract ได้ที่นี่ (ถ้า verified)\n• อ่าน ABI เพื่อดูชื่อ function และ parameter ทั้งหมดที่ contract รองรับ\n• ใช้ Read Contract เพื่อ query ข้อมูลปัจจุบัน เช่น currentCycleId, longPool, shortPool ได้โดยไม่ต้องส่ง tx',
+      },
+      {
+        heading: 'ดู ETH Balance ของ Vault',
+        body: '• ที่ด้านบนของหน้า Contract Overview จะแสดง ETH Balance ปัจจุบัน\n• ค่านี้ควรเท่ากับ longPool + shortPool ของรอบที่ active อยู่รวมกัน\n• ถ้ายอดเป็น 0 หลัง settle แสดงว่า ETH ถูกกระจายออกให้ผู้เล่นหมดแล้ว',
       },
     ],
   },

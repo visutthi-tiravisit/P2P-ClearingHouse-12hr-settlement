@@ -22,7 +22,8 @@ const NAV = [
   {
     section: 'การทำรายการ',
     items: [
-      { id: 'uc-long', label: 'UC · เปิด Long Order' },
+      { id: 'uc-long',  label: 'UC · เปิด Long Order' },
+      { id: 'uc-short', label: 'UC · เปิด Short Order' },
     ],
   },
   {
@@ -215,6 +216,41 @@ const PAGES = {
       {
         heading: 'เงื่อนไข ITM ของ Long',
         body: 'สถานะ Long เป็น In-the-Money (ITM) เมื่อ P_final > P_target\n\nหาก ITM: ผลตอบแทน = N × (1 + ΔP)  โดย ΔP = |P_entry − P_target| / P_target\nหาก OTM: ได้รับ N คืน (ทุนสุทธิหลังหักเบี้ย)',
+      },
+    ],
+  },
+
+  'uc-short': {
+    title: 'เปิด Short Order',
+    badge: 'การทำรายการ',
+    sections: [
+      {
+        heading: 'คำอธิบาย',
+        body: 'ผู้ใช้เปิดสถานะ Short เพื่อเดิมพันว่าราคา ETH/USD ณ สิ้นรอบจะต่ำกว่าราคาเป้าหมาย (P_target) ที่ถูกกำหนดไว้ตั้งแต่เริ่มรอบ Short เป็นฝั่งตรงข้ามของ Long — ผู้เล่นทั้งสองฝั่งเป็นคู่สัญญากันโดยตรงผ่าน pool',
+      },
+      {
+        heading: 'เงื่อนไขก่อนใช้งาน',
+        body: '• กระเป๋า MetaMask เชื่อมต่อและอยู่บน Sepolia network\n• มี Sepolia ETH เพียงพอ (ขั้นต่ำ 0.001 ETH บวกค่า gas)\n• มีรอบการซื้อขายที่ active อยู่ในขณะนั้น\n• กระเป๋าต้องไม่ใช่ Treasury address (Treasury ไม่สามารถเปิดสถานะได้)',
+      },
+      {
+        heading: 'ขั้นตอน',
+        body: '1. บน Dashboard เลื่อนไปที่ TradePanel\n2. เลือกฝั่ง "Short" — ปุ่มจะ highlight สีม่วง\n3. ใส่จำนวน collateral (ETH) ในช่อง Collateral\n4. ตรวจสอบ Order Summary ที่อัปเดต real-time:\n   • เบี้ยรวม (Total Premium %)\n   • Net Position หลังหักเบี้ย\n   • Possible Profit หากราคาลงตามคาด\n5. คลิกปุ่ม "Open Short"\n6. MetaMask popup ปรากฏ — ตรวจสอบจำนวน ETH และกด Confirm\n7. รอธุรกรรมถูก mine (ปุ่มจะแสดง "Broadcasting Tx…" ระหว่างรอ)',
+      },
+      {
+        heading: 'สิ่งที่เกิดขึ้นใน Smart Contract',
+        body: 'เมื่อธุรกรรมถูก mine:\n• สัญญาบันทึก P_entry = ราคา Chainlink ณ เวลาที่ block ถูก confirm\n• หักเบี้ยประกันรวมออกจาก collateral → ได้ Net Position (N)\n• เพิ่ม N เข้า Short pool ของรอบปัจจุบัน\n• บันทึก position ด้วย Cycle ID, P_entry, P_target, N, และ address ผู้เล่น',
+      },
+      {
+        heading: 'ผลลัพธ์หลังดำเนินการ',
+        body: '• สถานะ Short ปรากฏใน Holdings Table พร้อม badge "ITM" หรือ "OTM" ตามราคา live\n• Short pool ใน Pool Meter เพิ่มขึ้น\n• สถานะจะถูก settle อัตโนมัติเมื่อสิ้นรอบ 12 ชั่วโมง',
+      },
+      {
+        heading: 'เงื่อนไข ITM ของ Short',
+        body: 'สถานะ Short เป็น In-the-Money (ITM) เมื่อ P_final < P_target\n\nหาก ITM: ผลตอบแทน = N × (1 + ΔP)  โดย ΔP = |P_entry − P_target| / P_target\nหาก OTM: ได้รับ N คืน (ทุนสุทธิหลังหักเบี้ย)',
+      },
+      {
+        heading: 'ความแตกต่างจาก Long',
+        body: '• ปุ่มเลือกฝั่งเป็น "Short" (สีม่วง) แทน "Long" (สีน้ำเงิน)\n• N ถูกเพิ่มเข้า Short pool แทน Long pool\n• ITM เมื่อราคา ลง ต่ำกว่า P_target (Long ITM เมื่อราคา ขึ้น)\n• ผลตอบแทนมาจาก Long pool ของฝั่งตรงข้าม ไม่ใช่ Short pool',
       },
     ],
   },

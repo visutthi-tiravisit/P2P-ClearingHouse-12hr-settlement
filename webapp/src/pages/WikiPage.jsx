@@ -214,6 +214,106 @@ const PAGES = {
 
 };
 
+// ─── Body renderer ────────────────────────────────────────────────────────────
+
+function BodyRenderer({ body }) {
+  const lines = body.split('\n');
+  const blocks = [];
+  let i = 0;
+
+  while (i < lines.length) {
+    const line = lines[i];
+
+    if (!line.trim()) { i++; continue; }
+
+    // Numbered item (may have indented sub-bullets immediately after)
+    if (/^\d+\./.test(line.trim())) {
+      const items = [];
+      while (i < lines.length && /^\d+\./.test(lines[i].trim())) {
+        const text = lines[i].trim().replace(/^\d+\.\s*/, '');
+        const subItems = [];
+        i++;
+        while (i < lines.length && /^\s+•/.test(lines[i])) {
+          subItems.push(lines[i].trim().replace(/^•\s*/, ''));
+          i++;
+        }
+        items.push({ text, subItems });
+      }
+      blocks.push({ type: 'ol', items });
+      continue;
+    }
+
+    // Top-level bullet
+    if (/^•/.test(line.trim())) {
+      const items = [];
+      while (i < lines.length && /^•/.test(lines[i].trim())) {
+        items.push(lines[i].trim().replace(/^•\s*/, ''));
+        i++;
+      }
+      blocks.push({ type: 'ul', items });
+      continue;
+    }
+
+    // Plain text — collect until empty line, bullet, or numbered item
+    const textLines = [];
+    while (
+      i < lines.length &&
+      lines[i].trim() &&
+      !/^\d+\./.test(lines[i].trim()) &&
+      !/^•/.test(lines[i].trim()) &&
+      !/^\s+•/.test(lines[i])
+    ) {
+      textLines.push(lines[i]);
+      i++;
+    }
+    if (textLines.length) blocks.push({ type: 'p', text: textLines.join('\n') });
+  }
+
+  return (
+    <div className="space-y-2.5 text-sm text-slate-400 leading-relaxed">
+      {blocks.map((block, bi) => {
+        if (block.type === 'ol') {
+          return (
+            <ol key={bi} className="space-y-2">
+              {block.items.map((item, ii) => (
+                <li key={ii} className="flex gap-2.5">
+                  <span className="text-teal/50 font-mono shrink-0 w-5 text-right">{ii + 1}.</span>
+                  <span>
+                    {item.text}
+                    {item.subItems.length > 0 && (
+                      <ul className="mt-1.5 space-y-1">
+                        {item.subItems.map((sub, si) => (
+                          <li key={si} className="flex gap-2 text-slate-500 ml-1">
+                            <span className="text-teal/30 shrink-0">•</span>
+                            <span>{sub}</span>
+                          </li>
+                        ))}
+                      </ul>
+                    )}
+                  </span>
+                </li>
+              ))}
+            </ol>
+          );
+        }
+        if (block.type === 'ul') {
+          return (
+            <ul key={bi} className="space-y-1.5">
+              {block.items.map((item, ii) => (
+                <li key={ii} className="flex gap-2.5">
+                  <span className="text-teal/50 shrink-0">•</span>
+                  <span>{item}</span>
+                </li>
+              ))}
+            </ul>
+          );
+        }
+        return <p key={bi} className="whitespace-pre-line">{block.text}</p>;
+      })}
+    </div>
+  );
+}
+
 // ─── Content renderer ─────────────────────────────────────────────────────────
 
 function PageContent({ pageId }) {
@@ -235,9 +335,7 @@ function PageContent({ pageId }) {
               <span className="w-1 h-4 rounded-full bg-teal/60 inline-block" />
               {sec.heading}
             </h2>
-            <p className="text-sm text-slate-400 leading-relaxed whitespace-pre-line">
-              {sec.body}
-            </p>
+            <BodyRenderer body={sec.body} />
           </section>
         ))}
       </div>

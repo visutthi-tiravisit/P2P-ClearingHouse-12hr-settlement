@@ -19,6 +19,12 @@ const NAV = [
       { id: 'uc02', label: 'UC-02 · ยกเลิกการเชื่อมต่อ' },
     ],
   },
+  {
+    section: 'การทำรายการ',
+    items: [
+      { id: 'uc-long', label: 'UC · เปิด Long Order' },
+    ],
+  },
 ];
 
 // ─── Page content ─────────────────────────────────────────────────────────────
@@ -171,6 +177,37 @@ const PAGES = {
       {
         heading: 'ผลลัพธ์หลังดำเนินการ',
         body: 'ไม่แสดงที่อยู่กระเป๋า ข้อมูลทั้งหมดที่ต้องใช้กระเป๋าถูกซ่อน ผู้ใช้สามารถเชื่อมต่อใหม่ได้ทุกเมื่อ',
+      },
+    ],
+  },
+
+  'uc-long': {
+    title: 'เปิด Long Order',
+    badge: 'การทำรายการ',
+    sections: [
+      {
+        heading: 'คำอธิบาย',
+        body: 'ผู้ใช้เปิดสถานะ Long เพื่อเดิมพันว่าราคา ETH/USD ณ สิ้นรอบจะสูงกว่าราคาเป้าหมาย (P_target) ที่ถูกกำหนดไว้ตั้งแต่เริ่มรอบ',
+      },
+      {
+        heading: 'เงื่อนไขก่อนใช้งาน',
+        body: '• กระเป๋า MetaMask เชื่อมต่อและอยู่บน Sepolia network\n• มี Sepolia ETH เพียงพอ (ขั้นต่ำ 0.001 ETH บวกค่า gas)\n• มีรอบการซื้อขายที่ active อยู่ในขณะนั้น\n• กระเป๋าต้องไม่ใช่ Treasury address (Treasury ไม่สามารถเปิดสถานะได้)',
+      },
+      {
+        heading: 'ขั้นตอน',
+        body: '1. บน Dashboard เลื่อนไปที่ TradePanel\n2. เลือกฝั่ง "Long" — ปุ่มจะ highlight สีน้ำเงิน\n3. ใส่จำนวน collateral (ETH) ในช่อง Collateral\n4. ตรวจสอบ Order Summary ที่อัปเดต real-time:\n   • เบี้ยรวม (Total Premium %)\n   • Net Position หลังหักเบี้ย\n   • Possible Profit หากราคาขยับตามคาด\n5. คลิกปุ่ม "Open Long"\n6. MetaMask popup ปรากฏ — ตรวจสอบจำนวน ETH และกด Confirm\n7. รอธุรกรรมถูก mine (ปุ่มจะแสดง "Broadcasting Tx…" ระหว่างรอ)',
+      },
+      {
+        heading: 'สิ่งที่เกิดขึ้นใน Smart Contract',
+        body: 'เมื่อธุรกรรมถูก mine:\n• สัญญาบันทึก P_entry = ราคา Chainlink ณ เวลาที่ block ถูก confirm\n• หักเบี้ยประกันรวมออกจาก collateral → ได้ Net Position (N)\n• เพิ่ม N เข้า Long pool ของรอบปัจจุบัน\n• บันทึก position ด้วย Cycle ID, P_entry, P_target, N, และ address ผู้เล่น',
+      },
+      {
+        heading: 'ผลลัพธ์หลังดำเนินการ',
+        body: '• สถานะ Long ปรากฏใน Holdings Table พร้อม badge "ITM" หรือ "OTM" ตามราคา live\n• Long pool ใน Pool Meter เพิ่มขึ้น\n• สถานะจะถูก settle อัตโนมัติเมื่อสิ้นรอบ 12 ชั่วโมง',
+      },
+      {
+        heading: 'เงื่อนไข ITM ของ Long',
+        body: 'สถานะ Long เป็น In-the-Money (ITM) เมื่อ P_final > P_target\n\nหาก ITM: ผลตอบแทน = N × (1 + ΔP)  โดย ΔP = |P_entry − P_target| / P_target\nหาก OTM: ได้รับ N คืน (ทุนสุทธิหลังหักเบี้ย)',
       },
     ],
   },

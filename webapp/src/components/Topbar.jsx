@@ -1,3 +1,4 @@
+import { Link } from 'react-router-dom';
 import { useWallet } from '../context/WalletContext';
 
 function shortenAddr(addr) {
@@ -5,7 +6,7 @@ function shortenAddr(addr) {
   return addr.slice(0, 6) + '…' + addr.slice(-4);
 }
 
-export default function Topbar({ t, lang, onToggleLang, darkMode, onToggleTheme, onOpenWiki }) {
+export default function Topbar({ t, lang, onToggleLang, darkMode, onToggleTheme }) {
   const { account, balance, isSepoliaNetwork, disconnect } = useWallet();
 
   return (
@@ -30,8 +31,8 @@ export default function Topbar({ t, lang, onToggleLang, darkMode, onToggleTheme,
       {/* Right controls */}
       <div className="flex items-center gap-2">
         {/* Wiki */}
-        <button
-          onClick={onOpenWiki}
+        <Link
+          to="/wiki"
           className="btn-ghost text-xs flex items-center gap-1.5 px-2.5"
           title="Open Wiki / Manual"
         >
@@ -40,7 +41,7 @@ export default function Topbar({ t, lang, onToggleLang, darkMode, onToggleTheme,
               d="M12 6.253v13m0-13C10.832 5.477 9.246 5 7.5 5S4.168 5.477 3 6.253v13C4.168 18.477 5.754 18 7.5 18s3.332.477 4.5 1.253m0-13C13.168 5.477 14.754 5 16.5 5c1.747 0 3.332.477 4.5 1.253v13C19.832 18.477 18.247 18 16.5 18c-1.746 0-3.332.477-4.5 1.253" />
           </svg>
           Wiki
-        </button>
+        </Link>
 
         {/* Lang toggle */}
         <button

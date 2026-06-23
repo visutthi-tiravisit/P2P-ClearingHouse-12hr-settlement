@@ -1,4 +1,5 @@
 import { useState, useMemo, createContext, useContext } from 'react';
+import { Routes, Route } from 'react-router-dom';
 import { WalletProvider, useWallet } from './context/WalletContext';
 import ConnectWallet from './components/ConnectWallet';
 import Topbar       from './components/Topbar';
@@ -155,18 +156,13 @@ function AppInner({ lang, onToggleLang, darkMode, onToggleTheme }) {
   const { isConnected }             = useWallet();
   const { cycle }                   = useCycle();
   const [activePage, setActivePage] = useState('dashboard');
-  const [wikiOpen,  setWikiOpen]    = useState(false);
 
   const t = TRANSLATIONS[lang];
-
-  if (wikiOpen) {
-    return <WikiPage onClose={() => setWikiOpen(false)} />;
-  }
 
   if (!isConnected) {
     return (
       <div className="h-screen flex flex-col">
-        <Topbar t={t} lang={lang} onToggleLang={onToggleLang} darkMode={darkMode} onToggleTheme={onToggleTheme} onOpenWiki={() => setWikiOpen(true)} />
+        <Topbar t={t} lang={lang} onToggleLang={onToggleLang} darkMode={darkMode} onToggleTheme={onToggleTheme} />
         <ConnectWallet t={t} />
       </div>
     );
@@ -174,7 +170,7 @@ function AppInner({ lang, onToggleLang, darkMode, onToggleTheme }) {
 
   return (
     <div className="h-screen flex flex-col overflow-hidden">
-      <Topbar t={t} lang={lang} onToggleLang={onToggleLang} darkMode={darkMode} onToggleTheme={onToggleTheme} onOpenWiki={() => setWikiOpen(true)} />
+      <Topbar t={t} lang={lang} onToggleLang={onToggleLang} darkMode={darkMode} onToggleTheme={onToggleTheme} />
       <div className="flex flex-1 overflow-hidden">
         <Sidebar t={t} activePage={activePage} onNavigate={setActivePage} cycle={cycle} />
         <main className="flex-1 overflow-hidden">
@@ -212,12 +208,17 @@ export default function App() {
   return (
     <LangContext.Provider value={langCtx}>
       <WalletProvider>
-        <AppInner
-          lang={lang}
-          onToggleLang={toggleLang}
-          darkMode={darkMode}
-          onToggleTheme={toggleTheme}
-        />
+        <Routes>
+          <Route path="/wiki" element={<WikiPage />} />
+          <Route path="/*" element={
+            <AppInner
+              lang={lang}
+              onToggleLang={toggleLang}
+              darkMode={darkMode}
+              onToggleTheme={toggleTheme}
+            />
+          } />
+        </Routes>
       </WalletProvider>
     </LangContext.Provider>
   );

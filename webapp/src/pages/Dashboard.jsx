@@ -115,7 +115,6 @@ export default function Dashboard({ t }) {
               effectiveRemaining={effectiveRemaining}
               isTimerMock={isTimerMock}
               onFastForwardCritical={() => setSandboxElapsed(CYCLE_DURATION - 60)}
-              onFastForwardWarning={() => setSandboxElapsed(STABLE_END)}
               onResetTimer={() => setSandboxElapsed(null)}
               settle={settle}
               devFastForward={devFastForward}

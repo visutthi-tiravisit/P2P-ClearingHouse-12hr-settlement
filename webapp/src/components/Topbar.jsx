@@ -6,7 +6,7 @@ function shortenAddr(addr) {
   return addr.slice(0, 6) + '…' + addr.slice(-4);
 }
 
-export default function Topbar({ t, lang, onToggleLang, darkMode, onToggleTheme }) {
+export default function Topbar({ t }) {
   const { account, balance, isSepoliaNetwork, disconnect } = useWallet();
 
   return (
@@ -42,27 +42,6 @@ export default function Topbar({ t, lang, onToggleLang, darkMode, onToggleTheme 
           </svg>
           Wiki
         </Link>
-
-        {/* Lang toggle */}
-        <button
-          onClick={onToggleLang}
-          className="btn-ghost text-xs font-mono px-2.5"
-          title="Toggle language"
-        >
-          {lang === 'en' ? 'TH' : 'EN'}
-        </button>
-
-        {/* Theme toggle */}
-        <button
-          onClick={onToggleTheme}
-          className="btn-ghost px-2.5"
-          title={darkMode ? t.switchToLight : t.switchToDark}
-        >
-          {darkMode
-            ? <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M12 3v1m0 16v1m9-9h-1M4 12H3m15.364-6.364l-.707.707M6.343 17.657l-.707.707M17.657 17.657l-.707-.707M6.343 6.343l-.707-.707M16 12a4 4 0 11-8 0 4 4 0 018 0z" /></svg>
-            : <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M20.354 15.354A9 9 0 018.646 3.646 9.003 9.003 0 0012 21a9.003 9.003 0 008.354-5.646z" /></svg>
-          }
-        </button>
 
         {/* Network badge */}
         {!isSepoliaNetwork && (

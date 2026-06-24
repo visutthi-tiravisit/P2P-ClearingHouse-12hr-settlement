@@ -22,8 +22,9 @@ const NAV = [
   {
     section: 'การทำรายการ',
     items: [
-      { id: 'uc-long',  label: 'UC · เปิด Long Order' },
-      { id: 'uc-short', label: 'UC · เปิด Short Order' },
+      { id: 'uc-long',     label: 'UC · เปิด Long Order' },
+      { id: 'uc-short',    label: 'UC · เปิด Short Order' },
+      { id: 'uc-settle',   label: 'UC · กด Settlement (Treasury)' },
     ],
   },
   {
@@ -251,6 +252,37 @@ const PAGES = {
       {
         heading: 'ความแตกต่างจาก Long',
         body: '• ปุ่มเลือกฝั่งเป็น "Short" (สีม่วง) แทน "Long" (สีน้ำเงิน)\n• N ถูกเพิ่มเข้า Short pool แทน Long pool\n• ITM เมื่อราคา ลง ต่ำกว่า P_target (Long ITM เมื่อราคา ขึ้น)\n• ผลตอบแทนมาจาก Long pool ของฝั่งตรงข้าม ไม่ใช่ Short pool',
+      },
+    ],
+  },
+
+  'uc-settle': {
+    title: 'กด Settlement (Treasury)',
+    badge: 'การทำรายการ',
+    sections: [
+      {
+        heading: 'คำอธิบาย',
+        body: 'Treasury คือผู้ดูแลระบบที่มีสิทธิ์เรียก settle() บน smart contract เพื่อปิดรอบการชำระเงินปัจจุบัน เมื่อ settle สำเร็จ oracle จะบันทึกราคาสุดท้าย (P_final) สัญญาจำแนก ITM/OTM และกระจาย ETH ให้ผู้เล่นทุกคนตามสัดส่วนทันที',
+      },
+      {
+        heading: 'เงื่อนไขก่อนใช้งาน',
+        body: '• กระเป๋าที่เชื่อมต่อต้องเป็น Treasury address เท่านั้น:\n   0x00B75a4087b59D763918394F0eF34BE1Ff03B759\n• รอบปัจจุบันต้องผ่านไปแล้วอย่างน้อย 12 ชั่วโมง (หรือใช้ force-settle ผ่าน Sandbox ก็ได้)\n• Sandbox Panel ต้องมองเห็นอยู่ (แสดงเฉพาะ Treasury wallet)',
+      },
+      {
+        heading: 'ขั้นตอน',
+        body: '1. เชื่อมต่อ MetaMask ด้วย Treasury address (0x00B75...)\n2. Dashboard จะแสดง Sandbox Panel ที่ด้านล่างของหน้าจอ (TradePanel ถูกซ่อน)\n3. ใน Sandbox Panel คลิกปุ่ม "Settle Cycle"\n4. MetaMask popup ปรากฏ — ตรวจสอบ gas fee และคลิก Confirm\n5. รอธุรกรรมถูก mine — ปุ่มจะแสดงสถานะ loading ระหว่างรอ\n6. เมื่อ tx สำเร็จ Cycle Status จะแสดงว่ารอบถูก settle แล้ว',
+      },
+      {
+        heading: 'สิ่งที่เกิดขึ้นใน Smart Contract',
+        body: 'เมื่อ settle() ถูกเรียก:\n• สัญญาอ่านราคา P_final จาก Chainlink oracle ณ block ที่ tx ถูก mine\n• เปรียบเทียบ P_final กับ P_target ของรอบ:\n   Long ITM เมื่อ P_final > P_target\n   Short ITM เมื่อ P_final < P_target\n• รวม net position ของฝั่ง OTM เป็น payout pool\n• แต่ละสถานะ ITM ได้รับ: (N ของตัวเอง / N รวม ITM) × payout pool\n• โอน ETH ออกจาก vault ไปยัง address ผู้เล่นแต่ละคนโดยตรง\n• emit event CycleSettled พร้อม P_final และสรุปผล',
+      },
+      {
+        heading: 'ผลลัพธ์หลังดำเนินการ',
+        body: '• Holdings Table ของผู้เล่นทุกคนอัปเดตแสดงจำนวน ETH จริงที่ได้รับจาก on-chain\n• สถานะทุกตัวในรอบนั้นแสดง badge "Settled"\n• Cycle ID เพิ่มขึ้น 1 — รอบใหม่พร้อมเริ่มได้ทันทีโดย Treasury เรียก startCycle()\n• ETH Balance ของ Vault บน Etherscan ลดลงเท่ากับยอดรวมที่กระจายออกไป',
+      },
+      {
+        heading: 'ข้อควรระวัง',
+        body: '• settle() เรียกได้เฉพาะ Treasury เท่านั้น กระเป๋าอื่น tx จะ revert ทันที\n• ห้าม settle ซ้ำในรอบเดิม — สัญญาตรวจสอบ state และ revert หากพยายาม\n• หากไม่มีผู้เล่นฝั่งใดฝั่งหนึ่ง OTM pool จะเป็น 0 และ ITM pool ยังคืนทุนสุทธิให้ผู้เล่นทั้งหมด',
       },
     ],
   },

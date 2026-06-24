@@ -22,15 +22,18 @@ const NAV = [
   {
     section: 'การทำรายการ',
     items: [
-      { id: 'uc-long',  label: 'UC · เปิด Long Order' },
-      { id: 'uc-short', label: 'UC · เปิด Short Order' },
+      { id: 'uc-long',     label: 'UC-03 · เปิด Long Order' },
+      { id: 'uc-short',    label: 'UC-04 · เปิด Short Order' },
+      { id: 'uc-settle',   label: 'UC-05 · กด Settlement (Treasury)' },
+      { id: 'uc-claim',    label: 'UC-06 · Claim ผลตอบแทนหลัง Settle' },
+      { id: 'uc-critical', label: 'UC-07 · เปิด Order ช่วง Critical' },
     ],
   },
   {
     section: 'ตรวจสอบธุรกรรม',
     items: [
-      { id: 'uc-etherscan',      label: 'UC · ตรวจสอบธุรกรรมของฉัน' },
-      { id: 'uc-etherscan-vault', label: 'UC · ตรวจสอบธุรกรรมของ Vault' },
+      { id: 'uc-etherscan',      label: 'UC-08 · ตรวจสอบธุรกรรมของฉัน' },
+      { id: 'uc-etherscan-vault', label: 'UC-09 · ตรวจสอบธุรกรรมของ Vault' },
     ],
   },
 ];
@@ -69,6 +72,10 @@ const PAGES = {
       {
         heading: 'เทคโนโลยีที่ใช้',
         body: 'Solidity smart contracts · Ethereum Sepolia · Chainlink ETH/USD price feed · React 18 + Vite · Ethers.js v6 · Tailwind CSS v3',
+      },
+      {
+        heading: 'การ Deploy Smart Contract',
+        body: 'สัญญาอัจฉริยะถูก deploy บน Ethereum Sepolia testnet และผ่านการ verify source code บน Sepolia Etherscan แล้ว\n\nที่อยู่สัญญา (Vault):\n0x111Dc5a9D306493b9C51ebF63EE19b001B8082cb\n\nรายละเอียดการ deploy:\n• Network — Ethereum Sepolia (Chain ID: 11155111)\n• ภาษา — Solidity\n• Oracle — Chainlink ETH/USD Price Feed (Sepolia)\n• Owner — Treasury address 0x00B75a4087b59D763918394F0eF34BE1Ff03B759\n• ตรวจสอบ contract และ source code ได้ที่ sepolia.etherscan.io/address/0x111Dc5a9D306493b9C51ebF63EE19b001B8082cb',
       },
       {
         heading: 'เกี่ยวกับ Wiki นี้',
@@ -190,7 +197,7 @@ const PAGES = {
   },
 
   'uc-long': {
-    title: 'เปิด Long Order',
+    title: 'UC-03: เปิด Long Order',
     badge: 'การทำรายการ',
     sections: [
       {
@@ -221,7 +228,7 @@ const PAGES = {
   },
 
   'uc-short': {
-    title: 'เปิด Short Order',
+    title: 'UC-04: เปิด Short Order',
     badge: 'การทำรายการ',
     sections: [
       {
@@ -255,8 +262,105 @@ const PAGES = {
     ],
   },
 
+  'uc-settle': {
+    title: 'UC-05: กด Settlement (Treasury)',
+    badge: 'การทำรายการ',
+    sections: [
+      {
+        heading: 'คำอธิบาย',
+        body: 'Treasury คือผู้ดูแลระบบที่มีสิทธิ์เรียก settle() บน smart contract เพื่อปิดรอบการชำระเงินปัจจุบัน เมื่อ settle สำเร็จ oracle จะบันทึกราคาสุดท้าย (P_final) สัญญาจำแนก ITM/OTM และกระจาย ETH ให้ผู้เล่นทุกคนตามสัดส่วนทันที',
+      },
+      {
+        heading: 'เงื่อนไขก่อนใช้งาน',
+        body: '• กระเป๋าที่เชื่อมต่อต้องเป็น Treasury address เท่านั้น:\n   0x00B75a4087b59D763918394F0eF34BE1Ff03B759\n• รอบปัจจุบันต้องผ่านไปแล้วอย่างน้อย 12 ชั่วโมง (หรือใช้ force-settle ผ่าน Sandbox ก็ได้)\n• Sandbox Panel ต้องมองเห็นอยู่ (แสดงเฉพาะ Treasury wallet)',
+      },
+      {
+        heading: 'ขั้นตอน',
+        body: '1. เชื่อมต่อ MetaMask ด้วย Treasury address (0x00B75...)\n2. Dashboard จะแสดง Sandbox Panel ที่ด้านล่างของหน้าจอ (TradePanel ถูกซ่อน)\n3. ใน Sandbox Panel คลิกปุ่ม "Settle Cycle"\n4. MetaMask popup ปรากฏ — ตรวจสอบ gas fee และคลิก Confirm\n5. รอธุรกรรมถูก mine — ปุ่มจะแสดงสถานะ loading ระหว่างรอ\n6. เมื่อ tx สำเร็จ Cycle Status จะแสดงว่ารอบถูก settle แล้ว',
+      },
+      {
+        heading: 'สิ่งที่เกิดขึ้นใน Smart Contract',
+        body: 'เมื่อ settle() ถูกเรียก:\n• สัญญาอ่านราคา P_final จาก Chainlink oracle ณ block ที่ tx ถูก mine\n• เปรียบเทียบ P_final กับ P_target ของรอบ:\n   Long ITM เมื่อ P_final > P_target\n   Short ITM เมื่อ P_final < P_target\n• รวม net position ของฝั่ง OTM เป็น payout pool\n• แต่ละสถานะ ITM ได้รับ: (N ของตัวเอง / N รวม ITM) × payout pool\n• โอน ETH ออกจาก vault ไปยัง address ผู้เล่นแต่ละคนโดยตรง\n• emit event CycleSettled พร้อม P_final และสรุปผล',
+      },
+      {
+        heading: 'ผลลัพธ์หลังดำเนินการ',
+        body: '• Holdings Table ของผู้เล่นทุกคนอัปเดตแสดงจำนวน ETH จริงที่ได้รับจาก on-chain\n• สถานะทุกตัวในรอบนั้นแสดง badge "Settled"\n• Cycle ID เพิ่มขึ้น 1 — รอบใหม่พร้อมเริ่มได้ทันทีโดย Treasury เรียก startCycle()\n• ETH Balance ของ Vault บน Etherscan ลดลงเท่ากับยอดรวมที่กระจายออกไป',
+      },
+      {
+        heading: 'ข้อควรระวัง',
+        body: '• settle() เรียกได้เฉพาะ Treasury เท่านั้น กระเป๋าอื่น tx จะ revert ทันที\n• ห้าม settle ซ้ำในรอบเดิม — สัญญาตรวจสอบ state และ revert หากพยายาม\n• หากไม่มีผู้เล่นฝั่งใดฝั่งหนึ่ง OTM pool จะเป็น 0 และ ITM pool ยังคืนทุนสุทธิให้ผู้เล่นทั้งหมด',
+      },
+    ],
+  },
+
+  'uc-claim': {
+    title: 'UC-06: Claim ผลตอบแทนหลัง Settle',
+    badge: 'การทำรายการ',
+    sections: [
+      {
+        heading: 'คำอธิบาย',
+        body: 'หลังจาก Treasury กด settle รอบเสร็จแล้ว ผู้เล่นที่มีสถานะในรอบนั้นสามารถกด Claim เพื่อรับ ETH ที่ได้รับการจัดสรรจาก smart contract กลับคืนสู่กระเป๋าของตัวเองได้ ทั้ง ITM (ได้ทุน + กำไรจาก pool ฝั่งตรงข้าม) และ OTM (ได้ทุนสุทธิคืน)',
+      },
+      {
+        heading: 'เงื่อนไขก่อนใช้งาน',
+        body: '• กระเป๋าที่เชื่อมต่อต้องเป็นกระเป๋าที่เคยเปิดสถานะในรอบนั้น\n• รอบนั้นต้องถูก settle แล้ว (Treasury เรียก settle() สำเร็จ)\n• ยังไม่เคย claim สถานะนั้นมาก่อน',
+      },
+      {
+        heading: 'ขั้นตอน',
+        body: '1. เชื่อมต่อ MetaMask ด้วยกระเป๋าที่เคยเปิดสถานะ\n2. ดูที่ Holdings Table — สถานะที่ settle แล้วจะแสดงยอด ETH จริงที่ claim ได้\n3. คลิกปุ่ม "Claim" ที่แถวของสถานะนั้น\n4. MetaMask popup ปรากฏ — ยืนยัน gas fee และคลิก Confirm\n5. รอธุรกรรมถูก mine\n6. ETH เข้ากระเป๋าทันทีและแถวนั้นอัปเดตเป็นสถานะ "Claimed"',
+      },
+      {
+        heading: 'สิ่งที่เกิดขึ้นใน Smart Contract',
+        body: 'เมื่อ claim() ถูกเรียก:\n• สัญญาตรวจสอบว่า msg.sender เป็นเจ้าของสถานะนั้นจริง\n• ตรวจสอบว่ารอบถูก settle แล้วและยังไม่เคย claim\n• โอน ETH ที่จัดสรรไว้จาก vault ไปยัง msg.sender\n• บันทึก flag hasClaimed = true เพื่อป้องกัน double-claim',
+      },
+      {
+        heading: 'ยอดที่ได้รับ',
+        body: 'หากสถานะ ITM:\n   ผลตอบแทน = (N ของตัวเอง / N รวมฝั่ง ITM) × payout pool ของฝั่ง OTM\n\nหากสถานะ OTM:\n   ผลตอบแทน = N (net position คืนทุนสุทธิหลังหักเบี้ย)\n\nค่าที่แสดงใน Holdings คือยอด on-chain จริงจาก event ของ contract ไม่ใช่ประมาณการ',
+      },
+      {
+        heading: 'ผลลัพธ์หลังดำเนินการ',
+        body: '• ETH เข้ากระเป๋าทันทีเมื่อ tx สำเร็จ\n• แถวใน Holdings แสดง badge "Claimed" และล็อคไม่ให้กด claim ซ้ำ\n• ยอด ETH ใน Topbar เพิ่มขึ้นตามจำนวนที่ได้รับ\n• สามารถตรวจสอบการโอนได้บน Sepolia Etherscan ที่แท็บ Internal Transactions ของ contract',
+      },
+    ],
+  },
+
+  'uc-critical': {
+    title: 'UC-07: เปิด Order ช่วง Critical',
+    badge: 'การทำรายการ',
+    sections: [
+      {
+        heading: 'คำอธิบาย',
+        body: 'ช่วง Critical คือ 90 นาทีสุดท้ายของแต่ละรอบ (10.5–12 ชั่วโมงหลังเริ่มรอบ) ผู้เล่นยังเปิดสถานะได้อยู่ แต่ Time Premium จะสูงขึ้นเป็น 5–10% เพื่อสะท้อนความเสี่ยงที่สูงขึ้นใกล้ปิดรอบ\n\nในสถานการณ์นี้ Treasury ใช้ Sandbox Panel กด Fast Forward เพื่อข้ามเวลาให้ถึงช่วง Critical ก่อน จากนั้นกระเป๋าอื่นจึงเปิดสถานะเพื่อเห็นค่าเบี้ยที่สูงขึ้น',
+      },
+      {
+        heading: 'Phase ของแต่ละรอบ',
+        body: '• Stable (0–9 ชั่วโมง) — Time Premium = 0%\n• Warning (9–10.5 ชั่วโมง) — Time Premium = 2%\n• Critical (10.5–12 ชั่วโมง) — Time Premium = 5–10% (สูงขึ้นตามเวลาที่เหลือ)',
+      },
+      {
+        heading: 'ขั้นตอน — Treasury Fast Forward ไปช่วง Critical',
+        body: '1. เชื่อมต่อ MetaMask ด้วย Treasury address (0x00B75...)\n2. ใน Sandbox Panel คลิกปุ่ม "Fast Forward to Critical"\n3. MetaMask popup ปรากฏ — ยืนยัน gas fee และคลิก Confirm\n4. รอ tx สำเร็จ — Cycle Status จะเปลี่ยนสีเป็นแดงและแสดง phase "Critical"\n5. Countdown แสดงเวลาที่เหลือน้อยกว่า 90 นาที',
+      },
+      {
+        heading: 'ขั้นตอน — ผู้เล่นเปิดสถานะช่วง Critical',
+        body: '1. สลับไปกระเป๋าอื่นที่ไม่ใช่ Treasury\n2. เปิด TradePanel — Order Summary จะแสดง Time Premium สูงกว่าปกติ\n3. เลือก Long หรือ Short และใส่จำนวน collateral\n4. ตรวจสอบ Order Summary:\n   • Time Premium — แสดง 5–10% แทนที่จะเป็น 0% ช่วง Stable\n   • Total Premium — รวมสูงกว่าปกติ\n   • Net Position — ต่ำกว่าปกติเพราะเบี้ยแพงขึ้น\n5. คลิกปุ่มเปิดสถานะ และยืนยันใน MetaMask',
+      },
+      {
+        heading: 'สิ่งที่แตกต่างจากการเปิดช่วง Stable',
+        body: '• Time Premium = 5–10% (ช่วง Stable = 0%)\n• Total Premium รวมสูงกว่า → Net Position ต่ำกว่า\n• Possible Profit ลดลงตามเพราะทุนสุทธิน้อยลง\n• สัญญายังรับสถานะได้ปกติ — ไม่มีการล็อคการเปิดสถานะ',
+      },
+      {
+        heading: 'เหตุผลที่มี Critical Premium',
+        body: 'ช่วง Critical เป็นช่วงที่ใกล้ปิดรอบ ผู้เล่นที่เข้ามาช้าได้เปรียบเพราะทราบทิศทางราคาแล้วบางส่วน ระบบจึงเพิ่ม Time Premium เพื่อชดเชยความได้เปรียบนั้นและรักษาความยุติธรรมให้ผู้เล่นที่เข้ามาตั้งแต่ช่วง Stable',
+      },
+      {
+        heading: 'ผลลัพธ์หลังดำเนินการ',
+        body: '• สถานะปรากฏใน Holdings Table พร้อม badge ITM/OTM ตามราคา live\n• เบี้ยที่หักไปแล้วจะไม่คืน ไม่ว่าจะ settle ช้าหรือเร็ว\n• เมื่อ Treasury settle รอบ สถานะนี้จะถูกจำแนกและรับผลตอบแทนเช่นเดียวกับสถานะปกติ',
+      },
+    ],
+  },
+
   'uc-etherscan': {
-    title: 'ตรวจสอบธุรกรรมของฉันบน Etherscan',
+    title: 'UC-08: ตรวจสอบธุรกรรมของฉันบน Etherscan',
     badge: 'ตรวจสอบธุรกรรม',
     sections: [
       {
@@ -291,7 +395,7 @@ const PAGES = {
   },
 
   'uc-etherscan-vault': {
-    title: 'ตรวจสอบธุรกรรมของ Vault บน Etherscan',
+    title: 'UC-09: ตรวจสอบธุรกรรมของ Vault บน Etherscan',
     badge: 'ตรวจสอบธุรกรรม',
     sections: [
       {

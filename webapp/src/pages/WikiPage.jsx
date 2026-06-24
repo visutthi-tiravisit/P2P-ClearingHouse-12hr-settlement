@@ -25,6 +25,7 @@ const NAV = [
       { id: 'uc-long',     label: 'UC · เปิด Long Order' },
       { id: 'uc-short',    label: 'UC · เปิด Short Order' },
       { id: 'uc-settle',   label: 'UC · กด Settlement (Treasury)' },
+      { id: 'uc-claim',    label: 'UC · Claim ผลตอบแทนหลัง Settle' },
     ],
   },
   {
@@ -283,6 +284,37 @@ const PAGES = {
       {
         heading: 'ข้อควรระวัง',
         body: '• settle() เรียกได้เฉพาะ Treasury เท่านั้น กระเป๋าอื่น tx จะ revert ทันที\n• ห้าม settle ซ้ำในรอบเดิม — สัญญาตรวจสอบ state และ revert หากพยายาม\n• หากไม่มีผู้เล่นฝั่งใดฝั่งหนึ่ง OTM pool จะเป็น 0 และ ITM pool ยังคืนทุนสุทธิให้ผู้เล่นทั้งหมด',
+      },
+    ],
+  },
+
+  'uc-claim': {
+    title: 'Claim ผลตอบแทนหลัง Settle',
+    badge: 'การทำรายการ',
+    sections: [
+      {
+        heading: 'คำอธิบาย',
+        body: 'หลังจาก Treasury กด settle รอบเสร็จแล้ว ผู้เล่นที่มีสถานะในรอบนั้นสามารถกด Claim เพื่อรับ ETH ที่ได้รับการจัดสรรจาก smart contract กลับคืนสู่กระเป๋าของตัวเองได้ ทั้ง ITM (ได้ทุน + กำไรจาก pool ฝั่งตรงข้าม) และ OTM (ได้ทุนสุทธิคืน)',
+      },
+      {
+        heading: 'เงื่อนไขก่อนใช้งาน',
+        body: '• กระเป๋าที่เชื่อมต่อต้องเป็นกระเป๋าที่เคยเปิดสถานะในรอบนั้น\n• รอบนั้นต้องถูก settle แล้ว (Treasury เรียก settle() สำเร็จ)\n• ยังไม่เคย claim สถานะนั้นมาก่อน',
+      },
+      {
+        heading: 'ขั้นตอน',
+        body: '1. เชื่อมต่อ MetaMask ด้วยกระเป๋าที่เคยเปิดสถานะ\n2. ดูที่ Holdings Table — สถานะที่ settle แล้วจะแสดงยอด ETH จริงที่ claim ได้\n3. คลิกปุ่ม "Claim" ที่แถวของสถานะนั้น\n4. MetaMask popup ปรากฏ — ยืนยัน gas fee และคลิก Confirm\n5. รอธุรกรรมถูก mine\n6. ETH เข้ากระเป๋าทันทีและแถวนั้นอัปเดตเป็นสถานะ "Claimed"',
+      },
+      {
+        heading: 'สิ่งที่เกิดขึ้นใน Smart Contract',
+        body: 'เมื่อ claim() ถูกเรียก:\n• สัญญาตรวจสอบว่า msg.sender เป็นเจ้าของสถานะนั้นจริง\n• ตรวจสอบว่ารอบถูก settle แล้วและยังไม่เคย claim\n• โอน ETH ที่จัดสรรไว้จาก vault ไปยัง msg.sender\n• บันทึก flag hasClaimed = true เพื่อป้องกัน double-claim',
+      },
+      {
+        heading: 'ยอดที่ได้รับ',
+        body: 'หากสถานะ ITM:\n   ผลตอบแทน = (N ของตัวเอง / N รวมฝั่ง ITM) × payout pool ของฝั่ง OTM\n\nหากสถานะ OTM:\n   ผลตอบแทน = N (net position คืนทุนสุทธิหลังหักเบี้ย)\n\nค่าที่แสดงใน Holdings คือยอด on-chain จริงจาก event ของ contract ไม่ใช่ประมาณการ',
+      },
+      {
+        heading: 'ผลลัพธ์หลังดำเนินการ',
+        body: '• ETH เข้ากระเป๋าทันทีเมื่อ tx สำเร็จ\n• แถวใน Holdings แสดง badge "Claimed" และล็อคไม่ให้กด claim ซ้ำ\n• ยอด ETH ใน Topbar เพิ่มขึ้นตามจำนวนที่ได้รับ\n• สามารถตรวจสอบการโอนได้บน Sepolia Etherscan ที่แท็บ Internal Transactions ของ contract',
       },
     ],
   },

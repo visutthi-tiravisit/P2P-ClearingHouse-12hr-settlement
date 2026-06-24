@@ -74,6 +74,10 @@ const PAGES = {
         body: 'Solidity smart contracts · Ethereum Sepolia · Chainlink ETH/USD price feed · React 18 + Vite · Ethers.js v6 · Tailwind CSS v3',
       },
       {
+        heading: 'การ Deploy Smart Contract',
+        body: 'สัญญาอัจฉริยะถูก deploy บน Ethereum Sepolia testnet และผ่านการ verify source code บน Sepolia Etherscan แล้ว\n\nที่อยู่สัญญา (Vault):\n0x111Dc5a9D306493b9C51ebF63EE19b001B8082cb\n\nรายละเอียดการ deploy:\n• Network — Ethereum Sepolia (Chain ID: 11155111)\n• ภาษา — Solidity\n• Oracle — Chainlink ETH/USD Price Feed (Sepolia)\n• Owner — Treasury address 0x00B75a4087b59D763918394F0eF34BE1Ff03B759\n• ตรวจสอบ contract และ source code ได้ที่ sepolia.etherscan.io/address/0x111Dc5a9D306493b9C51ebF63EE19b001B8082cb',
+      },
+      {
         heading: 'เกี่ยวกับ Wiki นี้',
         body: 'เอกสารนี้ครอบคลุม 17 use case (UC-01 – UC-17) สำหรับการส่งงานวิชา CI7103 แต่ละหน้าอธิบาย preconditions ขั้นตอนการใช้งาน และ postconditions ของแต่ละ interaction',
       },

@@ -15,7 +15,6 @@ export default function SandboxPanel({
   effectiveRemaining,
   isTimerMock,
   onFastForwardCritical,
-  onFastForwardWarning,
   onResetTimer,
   settle,
   devFastForward,
@@ -119,12 +118,7 @@ export default function SandboxPanel({
                 ✕ {ffwdError}
               </p>
             )}
-            <button
-              onClick={onFastForwardWarning}
-              className="font-mono text-[10px] px-2 py-1.5 rounded border border-amber/25 bg-amber/10 text-amber/80 hover:bg-amber/20 transition-colors text-left"
-            >
-              ⚡ Fast-Forward → Warning Phase (UI only)
-            </button>
+
             {isTimerMock && (
               <button
                 onClick={onResetTimer}

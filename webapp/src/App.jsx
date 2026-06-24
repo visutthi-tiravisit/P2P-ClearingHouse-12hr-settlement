@@ -152,7 +152,7 @@ export const useLang = () => useContext(LangContext);
 
 // ─── Inner app (uses wallet context) ────────────────────────────────────────
 
-function AppInner({ lang, onToggleLang, darkMode, onToggleTheme }) {
+function AppInner({ lang }) {
   const { isConnected }             = useWallet();
   const { cycle }                   = useCycle();
   const [activePage, setActivePage] = useState('dashboard');
@@ -162,7 +162,7 @@ function AppInner({ lang, onToggleLang, darkMode, onToggleTheme }) {
   if (!isConnected) {
     return (
       <div className="h-screen flex flex-col">
-        <Topbar t={t} lang={lang} onToggleLang={onToggleLang} darkMode={darkMode} onToggleTheme={onToggleTheme} />
+        <Topbar t={t} />
         <ConnectWallet t={t} />
       </div>
     );
@@ -170,7 +170,7 @@ function AppInner({ lang, onToggleLang, darkMode, onToggleTheme }) {
 
   return (
     <div className="h-screen flex flex-col overflow-hidden">
-      <Topbar t={t} lang={lang} onToggleLang={onToggleLang} darkMode={darkMode} onToggleTheme={onToggleTheme} />
+      <Topbar t={t} />
       <div className="flex flex-1 overflow-hidden">
         <Sidebar t={t} activePage={activePage} onNavigate={setActivePage} cycle={cycle} />
         <main className="flex-1 overflow-hidden">
@@ -191,17 +191,7 @@ function AppInner({ lang, onToggleLang, darkMode, onToggleTheme }) {
 // ─── Root App ────────────────────────────────────────────────────────────────
 
 export default function App() {
-  const [lang,     setLang]     = useState('en');
-  const [darkMode, setDarkMode] = useState(true);
-
-  const toggleLang  = () => setLang(l => l === 'en' ? 'th' : 'en');
-  const toggleTheme = () => {
-    const next = !darkMode;
-    setDarkMode(next);
-    document.documentElement.style.setProperty('--bg', next ? '#070b12' : '#f0f4f8');
-    document.body.style.background = next ? '#070b12' : '#f0f4f8';
-    document.body.style.color      = next ? '#e2e8f0' : '#0f172a';
-  };
+  const [lang] = useState('en');
 
   const langCtx = useMemo(() => ({ lang, t: TRANSLATIONS[lang] }), [lang]);
 
@@ -210,14 +200,7 @@ export default function App() {
       <WalletProvider>
         <Routes>
           <Route path="/wiki" element={<WikiPage />} />
-          <Route path="/*" element={
-            <AppInner
-              lang={lang}
-              onToggleLang={toggleLang}
-              darkMode={darkMode}
-              onToggleTheme={toggleTheme}
-            />
-          } />
+          <Route path="/*" element={<AppInner lang={lang} />} />
         </Routes>
       </WalletProvider>
     </LangContext.Provider>

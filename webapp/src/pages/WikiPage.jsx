@@ -27,16 +27,16 @@ const NAV = [
       { id: 'uc-settle',   label: 'UC-05 · กด Settlement (Treasury)' },
       { id: 'uc-claim',    label: 'UC-06 · Claim ผลตอบแทนหลัง Settle' },
       { id: 'uc-critical', label: 'UC-07 · เปิด Order ช่วง Critical' },
-      { id: 'uc-no-counter',  label: 'UC-10 · ITM แต่ไม่มีคู่ตรงข้าม' },
-      { id: 'uc-lopsided',   label: 'UC-11 · ITM pool ใหญ่กว่า OTM มาก' },
-      { id: 'uc-lopsided-otm', label: 'UC-12 · OTM pool ใหญ่กว่า ITM มาก' },
+      { id: 'uc-no-counter',  label: 'UC-08 · ITM แต่ไม่มีคู่ตรงข้าม' },
+      { id: 'uc-lopsided',   label: 'UC-09 · ITM pool ใหญ่กว่า OTM มาก' },
+      { id: 'uc-lopsided-otm', label: 'UC-10 · OTM pool ใหญ่กว่า ITM มาก' },
     ],
   },
   {
     section: 'ตรวจสอบธุรกรรม',
     items: [
-      { id: 'uc-etherscan',      label: 'UC-08 · ตรวจสอบธุรกรรมของฉัน' },
-      { id: 'uc-etherscan-vault', label: 'UC-09 · ตรวจสอบธุรกรรมของ Vault' },
+      { id: 'uc-etherscan',      label: 'UC-11 · ตรวจสอบธุรกรรมของฉัน' },
+      { id: 'uc-etherscan-vault', label: 'UC-12 · ตรวจสอบธุรกรรมของ Vault' },
     ],
   },
 ];
@@ -363,7 +363,7 @@ const PAGES = {
   },
 
   'uc-no-counter': {
-    title: 'UC-10: ITM แต่ไม่มีคู่ตรงข้าม',
+    title: 'UC-08: ITM แต่ไม่มีคู่ตรงข้าม',
     badge: 'การทำรายการ',
     sections: [
       {
@@ -394,7 +394,7 @@ const PAGES = {
   },
 
   'uc-lopsided': {
-    title: 'UC-11: ITM pool ใหญ่กว่า OTM มาก',
+    title: 'UC-09: ITM pool ใหญ่กว่า OTM มาก',
     badge: 'การทำรายการ',
     sections: [
       {
@@ -425,7 +425,7 @@ const PAGES = {
   },
 
   'uc-lopsided-otm': {
-    title: 'UC-12: OTM pool ใหญ่กว่า ITM มาก',
+    title: 'UC-10: OTM pool ใหญ่กว่า ITM มาก',
     badge: 'การทำรายการ',
     sections: [
       {
@@ -456,7 +456,7 @@ const PAGES = {
   },
 
   'uc-etherscan': {
-    title: 'UC-08: ตรวจสอบธุรกรรมของฉันบน Etherscan',
+    title: 'UC-11: ตรวจสอบธุรกรรมของฉันบน Etherscan',
     badge: 'ตรวจสอบธุรกรรม',
     sections: [
       {
@@ -491,7 +491,7 @@ const PAGES = {
   },
 
   'uc-etherscan-vault': {
-    title: 'UC-09: ตรวจสอบธุรกรรมของ Vault บน Etherscan',
+    title: 'UC-12: ตรวจสอบธุรกรรมของ Vault บน Etherscan',
     badge: 'ตรวจสอบธุรกรรม',
     sections: [
       {

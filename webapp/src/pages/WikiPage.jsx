@@ -22,18 +22,18 @@ const NAV = [
   {
     section: 'การทำรายการ',
     items: [
-      { id: 'uc-long',     label: 'UC · เปิด Long Order' },
-      { id: 'uc-short',    label: 'UC · เปิด Short Order' },
-      { id: 'uc-settle',   label: 'UC · กด Settlement (Treasury)' },
-      { id: 'uc-claim',    label: 'UC · Claim ผลตอบแทนหลัง Settle' },
-      { id: 'uc-critical', label: 'UC · เปิด Order ช่วง Critical' },
+      { id: 'uc-long',     label: 'UC-03 · เปิด Long Order' },
+      { id: 'uc-short',    label: 'UC-04 · เปิด Short Order' },
+      { id: 'uc-settle',   label: 'UC-05 · กด Settlement (Treasury)' },
+      { id: 'uc-claim',    label: 'UC-06 · Claim ผลตอบแทนหลัง Settle' },
+      { id: 'uc-critical', label: 'UC-07 · เปิด Order ช่วง Critical' },
     ],
   },
   {
     section: 'ตรวจสอบธุรกรรม',
     items: [
-      { id: 'uc-etherscan',      label: 'UC · ตรวจสอบธุรกรรมของฉัน' },
-      { id: 'uc-etherscan-vault', label: 'UC · ตรวจสอบธุรกรรมของ Vault' },
+      { id: 'uc-etherscan',      label: 'UC-08 · ตรวจสอบธุรกรรมของฉัน' },
+      { id: 'uc-etherscan-vault', label: 'UC-09 · ตรวจสอบธุรกรรมของ Vault' },
     ],
   },
 ];
@@ -193,7 +193,7 @@ const PAGES = {
   },
 
   'uc-long': {
-    title: 'เปิด Long Order',
+    title: 'UC-03: เปิด Long Order',
     badge: 'การทำรายการ',
     sections: [
       {
@@ -224,7 +224,7 @@ const PAGES = {
   },
 
   'uc-short': {
-    title: 'เปิด Short Order',
+    title: 'UC-04: เปิด Short Order',
     badge: 'การทำรายการ',
     sections: [
       {
@@ -259,7 +259,7 @@ const PAGES = {
   },
 
   'uc-settle': {
-    title: 'กด Settlement (Treasury)',
+    title: 'UC-05: กด Settlement (Treasury)',
     badge: 'การทำรายการ',
     sections: [
       {
@@ -290,7 +290,7 @@ const PAGES = {
   },
 
   'uc-claim': {
-    title: 'Claim ผลตอบแทนหลัง Settle',
+    title: 'UC-06: Claim ผลตอบแทนหลัง Settle',
     badge: 'การทำรายการ',
     sections: [
       {
@@ -321,7 +321,7 @@ const PAGES = {
   },
 
   'uc-critical': {
-    title: 'เปิด Order ช่วง Critical',
+    title: 'UC-07: เปิด Order ช่วง Critical',
     badge: 'การทำรายการ',
     sections: [
       {
@@ -356,7 +356,7 @@ const PAGES = {
   },
 
   'uc-etherscan': {
-    title: 'ตรวจสอบธุรกรรมของฉันบน Etherscan',
+    title: 'UC-08: ตรวจสอบธุรกรรมของฉันบน Etherscan',
     badge: 'ตรวจสอบธุรกรรม',
     sections: [
       {
@@ -391,7 +391,7 @@ const PAGES = {
   },
 
   'uc-etherscan-vault': {
-    title: 'ตรวจสอบธุรกรรมของ Vault บน Etherscan',
+    title: 'UC-09: ตรวจสอบธุรกรรมของ Vault บน Etherscan',
     badge: 'ตรวจสอบธุรกรรม',
     sections: [
       {

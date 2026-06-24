@@ -27,7 +27,8 @@ const NAV = [
       { id: 'uc-settle',   label: 'UC-05 · กด Settlement (Treasury)' },
       { id: 'uc-claim',    label: 'UC-06 · Claim ผลตอบแทนหลัง Settle' },
       { id: 'uc-critical', label: 'UC-07 · เปิด Order ช่วง Critical' },
-      { id: 'uc-no-counter', label: 'UC-10 · ITM แต่ไม่มีคู่ตรงข้าม' },
+      { id: 'uc-no-counter',  label: 'UC-10 · ITM แต่ไม่มีคู่ตรงข้าม' },
+      { id: 'uc-lopsided',   label: 'UC-11 · ITM pool ใหญ่กว่า OTM มาก' },
     ],
   },
   {
@@ -387,6 +388,37 @@ const PAGES = {
       {
         heading: 'สรุปความแตกต่าง',
         body: '• ITM ปกติ (มีคู่ตรงข้าม) — ได้ N ของตัวเอง + สัดส่วนจาก OTM pool\n• ITM แต่ไม่มีคู่ตรงข้าม — ได้เฉพาะ N คืน (ไม่กำไร ไม่ขาดทุนจากเบี้ย)\n\nนี่คือพฤติกรรมที่ตั้งใจออกแบบ — ระบบ P2P ต้องการคู่สัญญาสองฝั่งจึงจะเกิดกำไร',
+      },
+    ],
+  },
+
+  'uc-lopsided': {
+    title: 'UC-11: ITM pool ใหญ่กว่า OTM มาก',
+    badge: 'การทำรายการ',
+    sections: [
+      {
+        heading: 'คำอธิบาย',
+        body: 'กรณีนี้เกิดขึ้นเมื่อ pool ฝั่ง ITM มีเงินรวมกันมากกว่า OTM pool อย่างมีนัยสำคัญ เช่น ITM รวม 10 ETH แต่ OTM มีเพียง 0.1 ETH ผู้เล่น ITM ทุกคนยังได้กำไรอยู่ แต่กำไรต่อหัวน้อยมากเพราะต้องแบ่ง payout pool เล็กๆ กันหลายคน ขณะที่ฝั่ง OTM ได้ net position คืนตามปกติ',
+      },
+      {
+        heading: 'ตัวอย่างตัวเลข',
+        body: 'สมมติ:\n• Long pool (ITM) = 10 ETH รวมจากผู้เล่น 5 คน คนละ 2 ETH\n• Short pool (OTM) = 0.1 ETH จากผู้เล่น 1 คน\n\nเมื่อ settle:\n• OTM pool กลายเป็น payout pool = 0.1 ETH\n• ผู้เล่น Long ITM แต่ละคนได้รับ:\n   N ของตัวเอง (≈ 2 ETH หลังหักเบี้ย)\n   + (2 / 10) × 0.1 ETH = 0.02 ETH กำไร\n• ผู้เล่น Short (OTM) ได้รับ:\n   N ของตัวเอง (≈ 0.1 ETH หลังหักเบี้ย) คืน',
+      },
+      {
+        heading: 'Skew Premium ที่เข้ามาเกี่ยว',
+        body: 'ในสถานการณ์นี้ Long pool ใหญ่กว่า Short มาก → ระบบจะคำนวณ Skew Factor สูงสำหรับฝั่ง Long และต่ำสำหรับฝั่ง Short:\n• ผู้เล่นที่จะเปิด Long ใหม่ในรอบนั้นจะถูกเก็บ Skew Premium สูงขึ้น (2× เมื่อ pool เอียงมาก)\n• ผู้เล่นที่จะเปิด Short ใหม่จะถูกเก็บ Skew Premium ต่ำลง (0.5×)\n• กลไกนี้ดึงดูดให้คนมาลง Short เพื่อสมดุล pool โดยอัตโนมัติ',
+      },
+      {
+        heading: 'สิ่งที่เกิดขึ้นใน Smart Contract',
+        body: 'เมื่อ settle():\n• รวม net position ของ OTM ทั้งหมดเป็น payout pool\n• แบ่ง payout pool ตามสัดส่วน N ของแต่ละ ITM\n   แต่ละ ITM ได้รับ = N_ตัวเอง + (N_ตัวเอง / N_ITM_รวม) × payout pool\n• ยิ่ง ITM pool ใหญ่กว่า OTM มากเท่าไหร่ กำไรต่อหัวยิ่งน้อยลงเท่านั้น\n• สัญญาทำงานปกติ ไม่มี edge case หรือ revert',
+      },
+      {
+        heading: 'สิ่งที่ผู้เล่นเห็นใน Holdings',
+        body: '• ผู้เล่น ITM ทุกคน — badge "ITM" และยอด Payout = N + กำไรเล็กน้อยจาก OTM pool\n• ผู้เล่น OTM — badge "OTM" และยอด Payout = N (ทุนสุทธิคืน)\n• กำไรของ ITM รวมกันทุกคนจะเท่ากับ OTM pool พอดี (zero-sum)',
+      },
+      {
+        heading: 'บทเรียนสำหรับผู้เล่น',
+        body: '• เข้า Long ถูกทิศได้กำไรจริง แต่กำไรขึ้นอยู่กับขนาด OTM pool ไม่ใช่แค่ทิศทางราคา\n• Pool ที่เอียงมากหมายความว่าฝั่งที่คนน้อย (Short ในตัวอย่างนี้) มี Skew Premium ถูก — โอกาสสำหรับผู้เล่นที่มองต่างมุม\n• ดู Pool Meter ก่อนเปิดสถานะเสมอเพื่อประเมินว่ากำไรที่เป็นไปได้มีมากน้อยแค่ไหน',
       },
     ],
   },

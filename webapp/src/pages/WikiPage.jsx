@@ -26,6 +26,7 @@ const NAV = [
       { id: 'uc-short',    label: 'UC · เปิด Short Order' },
       { id: 'uc-settle',   label: 'UC · กด Settlement (Treasury)' },
       { id: 'uc-claim',    label: 'UC · Claim ผลตอบแทนหลัง Settle' },
+      { id: 'uc-critical', label: 'UC · เปิด Order ช่วง Critical' },
     ],
   },
   {
@@ -315,6 +316,41 @@ const PAGES = {
       {
         heading: 'ผลลัพธ์หลังดำเนินการ',
         body: '• ETH เข้ากระเป๋าทันทีเมื่อ tx สำเร็จ\n• แถวใน Holdings แสดง badge "Claimed" และล็อคไม่ให้กด claim ซ้ำ\n• ยอด ETH ใน Topbar เพิ่มขึ้นตามจำนวนที่ได้รับ\n• สามารถตรวจสอบการโอนได้บน Sepolia Etherscan ที่แท็บ Internal Transactions ของ contract',
+      },
+    ],
+  },
+
+  'uc-critical': {
+    title: 'เปิด Order ช่วง Critical',
+    badge: 'การทำรายการ',
+    sections: [
+      {
+        heading: 'คำอธิบาย',
+        body: 'ช่วง Critical คือ 90 นาทีสุดท้ายของแต่ละรอบ (10.5–12 ชั่วโมงหลังเริ่มรอบ) ผู้เล่นยังเปิดสถานะได้อยู่ แต่ Time Premium จะสูงขึ้นเป็น 5–10% เพื่อสะท้อนความเสี่ยงที่สูงขึ้นใกล้ปิดรอบ\n\nในสถานการณ์นี้ Treasury ใช้ Sandbox Panel กด Fast Forward เพื่อข้ามเวลาให้ถึงช่วง Critical ก่อน จากนั้นกระเป๋าอื่นจึงเปิดสถานะเพื่อเห็นค่าเบี้ยที่สูงขึ้น',
+      },
+      {
+        heading: 'Phase ของแต่ละรอบ',
+        body: '• Stable (0–9 ชั่วโมง) — Time Premium = 0%\n• Warning (9–10.5 ชั่วโมง) — Time Premium = 2%\n• Critical (10.5–12 ชั่วโมง) — Time Premium = 5–10% (สูงขึ้นตามเวลาที่เหลือ)',
+      },
+      {
+        heading: 'ขั้นตอน — Treasury Fast Forward ไปช่วง Critical',
+        body: '1. เชื่อมต่อ MetaMask ด้วย Treasury address (0x00B75...)\n2. ใน Sandbox Panel คลิกปุ่ม "Fast Forward to Critical"\n3. MetaMask popup ปรากฏ — ยืนยัน gas fee และคลิก Confirm\n4. รอ tx สำเร็จ — Cycle Status จะเปลี่ยนสีเป็นแดงและแสดง phase "Critical"\n5. Countdown แสดงเวลาที่เหลือน้อยกว่า 90 นาที',
+      },
+      {
+        heading: 'ขั้นตอน — ผู้เล่นเปิดสถานะช่วง Critical',
+        body: '1. สลับไปกระเป๋าอื่นที่ไม่ใช่ Treasury\n2. เปิด TradePanel — Order Summary จะแสดง Time Premium สูงกว่าปกติ\n3. เลือก Long หรือ Short และใส่จำนวน collateral\n4. ตรวจสอบ Order Summary:\n   • Time Premium — แสดง 5–10% แทนที่จะเป็น 0% ช่วง Stable\n   • Total Premium — รวมสูงกว่าปกติ\n   • Net Position — ต่ำกว่าปกติเพราะเบี้ยแพงขึ้น\n5. คลิกปุ่มเปิดสถานะ และยืนยันใน MetaMask',
+      },
+      {
+        heading: 'สิ่งที่แตกต่างจากการเปิดช่วง Stable',
+        body: '• Time Premium = 5–10% (ช่วง Stable = 0%)\n• Total Premium รวมสูงกว่า → Net Position ต่ำกว่า\n• Possible Profit ลดลงตามเพราะทุนสุทธิน้อยลง\n• สัญญายังรับสถานะได้ปกติ — ไม่มีการล็อคการเปิดสถานะ',
+      },
+      {
+        heading: 'เหตุผลที่มี Critical Premium',
+        body: 'ช่วง Critical เป็นช่วงที่ใกล้ปิดรอบ ผู้เล่นที่เข้ามาช้าได้เปรียบเพราะทราบทิศทางราคาแล้วบางส่วน ระบบจึงเพิ่ม Time Premium เพื่อชดเชยความได้เปรียบนั้นและรักษาความยุติธรรมให้ผู้เล่นที่เข้ามาตั้งแต่ช่วง Stable',
+      },
+      {
+        heading: 'ผลลัพธ์หลังดำเนินการ',
+        body: '• สถานะปรากฏใน Holdings Table พร้อม badge ITM/OTM ตามราคา live\n• เบี้ยที่หักไปแล้วจะไม่คืน ไม่ว่าจะ settle ช้าหรือเร็ว\n• เมื่อ Treasury settle รอบ สถานะนี้จะถูกจำแนกและรับผลตอบแทนเช่นเดียวกับสถานะปกติ',
       },
     ],
   },
